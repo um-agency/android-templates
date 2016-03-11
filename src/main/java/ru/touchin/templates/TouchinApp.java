@@ -30,6 +30,7 @@ import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by Gavriil Sitnikov on 10/03/16.
+ * TODO: description
  */
 public abstract class TouchinApp extends Application {
 
