@@ -23,10 +23,14 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDex;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
+import ru.touchin.roboswag.core.log.ConsoleLogProcessor;
+import ru.touchin.roboswag.core.log.LcHelper;
+import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 
 /**
  * Created by Gavriil Sitnikov on 10/03/16.
@@ -46,11 +50,43 @@ public abstract class TouchinApp extends Application {
     public void onCreate() {
         super.onCreate();
         if (isDebug()) {
-            //TODO
+            LcHelper.setCrashOnAssertions(true);
+            LcHelper.initialize(Log.VERBOSE);
         } else {
+            LcHelper.setCrashOnAssertions(false);
             final Crashlytics crashlytics = new Crashlytics();
             Fabric.with(this, crashlytics);
+            LcHelper.initialize(Log.ERROR, new CrashlyticsLogProcessor(crashlytics));
         }
+    }
+
+    private static class CrashlyticsLogProcessor extends ConsoleLogProcessor {
+
+        @NonNull
+        private final Crashlytics crashlytics;
+
+        public CrashlyticsLogProcessor(@NonNull final Crashlytics crashlytics) {
+            super();
+            this.crashlytics = crashlytics;
+        }
+
+        @Override
+        public void processLogMessage(final int logLevel, final String tag, final String message) {
+            super.processLogMessage(logLevel, tag, message);
+            if (logLevel >= Log.ASSERT) {
+                crashlytics.core.logException(new ShouldNotHappenException(tag + ':' + message));
+            }
+        }
+
+        @Override
+        public void processLogMessage(final int logLevel, final String tag, final String message, @NonNull final Throwable ex) {
+            super.processLogMessage(logLevel, tag, message, ex);
+            if (logLevel >= Log.ASSERT) {
+                crashlytics.core.log(tag + ':' + message);
+                crashlytics.core.logException(ex);
+            }
+        }
+
     }
 
 }
