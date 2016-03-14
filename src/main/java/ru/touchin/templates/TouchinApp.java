@@ -28,6 +28,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
+import ru.touchin.roboswag.components.views.TypefacedViewHelper;
 import ru.touchin.roboswag.core.log.ConsoleLogProcessor;
 import ru.touchin.roboswag.core.log.LcHelper;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
@@ -50,9 +51,13 @@ public abstract class TouchinApp extends Application {
     public void onCreate() {
         super.onCreate();
         if (isDebug()) {
+            TypefacedViewHelper.setAllowEmptyCustomTypeface(false);
+
             LcHelper.setCrashOnAssertions(true);
             LcHelper.initialize(Log.VERBOSE);
         } else {
+            TypefacedViewHelper.setAllowEmptyCustomTypeface(true);
+
             LcHelper.setCrashOnAssertions(false);
             final Crashlytics crashlytics = new Crashlytics();
             Fabric.with(this, crashlytics);
