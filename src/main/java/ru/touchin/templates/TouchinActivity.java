@@ -7,4 +7,9 @@ import ru.touchin.roboswag.components.navigation.ViewControllerActivity;
  * TODO: description
  */
 public abstract class TouchinActivity<TLogicBridge> extends ViewControllerActivity<TLogicBridge> {
+
+    protected TouchinActivity() {
+        super();
+    }
+
 }
