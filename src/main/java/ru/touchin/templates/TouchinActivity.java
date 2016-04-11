@@ -1,6 +1,6 @@
 package ru.touchin.templates;
 
-import ru.touchin.roboswag.components.navigation.ViewControllerActivity;
+import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
 import ru.touchin.roboswag.components.utils.Logic;
 
 /**
