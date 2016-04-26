@@ -76,7 +76,7 @@ public abstract class TouchinApp extends Application {
         }
 
         @Override
-        public void processLogMessage(final int logLevel, final String tag, final String message) {
+        public void processLogMessage(final int logLevel, @NonNull final String tag, @NonNull final String message) {
             super.processLogMessage(logLevel, tag, message);
             if (logLevel >= Log.ASSERT) {
                 crashlytics.core.logException(new ShouldNotHappenException(tag + ':' + message));
@@ -84,7 +84,7 @@ public abstract class TouchinApp extends Application {
         }
 
         @Override
-        public void processLogMessage(final int logLevel, final String tag, final String message, @NonNull final Throwable ex) {
+        public void processLogMessage(final int logLevel, @NonNull final String tag, @NonNull final String message, @NonNull final Throwable ex) {
             super.processLogMessage(logLevel, tag, message, ex);
             if (logLevel >= Log.ASSERT) {
                 crashlytics.core.log(tag + ':' + message);
