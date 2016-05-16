@@ -27,6 +27,8 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import io.fabric.sdk.android.Fabric;
 import ru.touchin.roboswag.components.views.TypefacedViewHelper;
 import ru.touchin.roboswag.core.log.ConsoleLogProcessor;
@@ -50,6 +52,7 @@ public abstract class TouchinApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        JodaTimeAndroid.init(this);
         if (isDebug()) {
             TypefacedViewHelper.setAllowEmptyCustomTypeface(false);
 

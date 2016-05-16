@@ -23,6 +23,7 @@ dependencies {
     provided('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
+    compile 'net.danlew:android.joda:2.9.3'
 
     provided 'io.reactivex:rxandroid:1.1.0'
 

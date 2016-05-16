@@ -33,7 +33,7 @@ public abstract class GoogleJsonModel extends Model {
         }
     }
 
-    protected static void validateNullOrNonEmpty(@Nullable final Object object) throws ValidationException {
+    protected static void validateEmptyOrNonNull(@Nullable final Object object) throws ValidationException {
         if (object != null && isNullOrEmpty(object)) {
             throw new ValidationException("Nullable or not empty object is empty");
         }
