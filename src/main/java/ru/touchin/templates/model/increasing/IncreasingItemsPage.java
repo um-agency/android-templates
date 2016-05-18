@@ -17,19 +17,20 @@
  *
  */
 
-package ru.touchin.templates;
+package ru.touchin.templates.model.increasing;
 
-import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
-import ru.touchin.roboswag.components.utils.Logic;
+import android.support.annotation.NonNull;
+
+import java.util.Collection;
 
 /**
- * Created by Gavriil Sitnikov on 11/03/16.
- * TODO: description
+ * Created by Gavriil Sitnikov on 18/05/16.
  */
-public abstract class TouchinActivity<TLogic extends Logic> extends ViewControllerActivity<TLogic> {
+public interface IncreasingItemsPage<TItem> {
 
-    protected TouchinActivity() {
-        super();
-    }
+    boolean isLast();
+
+    @NonNull
+    Collection<TItem> getItems();
 
 }
