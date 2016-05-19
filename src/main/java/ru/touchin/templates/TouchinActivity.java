@@ -19,10 +19,15 @@
 
 package ru.touchin.templates;
 
+import android.app.ActivityManager;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
@@ -35,53 +40,39 @@ import ru.touchin.roboswag.components.utils.UiUtils;
  */
 public abstract class TouchinActivity<TLogic extends Logic> extends ViewControllerActivity<TLogic> {
 
-    protected TouchinActivity() {
-        super();
-    }
-
     @Override
     protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        makeActivityFullScreen();
+        onConfigureActivityScreen();
     }
 
-    private void makeActivityFullScreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && (isActivityUnderNavigationBar() || isActivityUnderStatusBar())) {
-            final View activityView = findViewById(getContainerId());
-            int topPadding = activityView.getPaddingTop();
-            int bottomPadding = activityView.getPaddingBottom();
-            if (isActivityUnderStatusBar()) {
-                topPadding += UiUtils.getStatusBarHeight(this);
-            }
+    private void onConfigureActivityScreen() {
+        if (isActivitySizeConfigurable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (UiUtils.hasSoftKeys(this)) {
                 getWindow().getDecorView()
                         .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-                if (isActivityUnderNavigationBar()) {
-                    bottomPadding += UiUtils.getNavigationBarHeight(this);
-                }
             } else {
                 getWindow().getDecorView()
                         .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
             }
-            activityView.setPadding(activityView.getPaddingLeft(),
-                    topPadding,
-                    activityView.getPaddingRight(),
-                    bottomPadding);
-
+            configureActivitySize();
         }
     }
 
-    protected boolean isActivityUnderStatusBar() {
-        return false;
+    protected abstract void configureActivitySize();
+
+    protected void setupTaskDescriptor(@NonNull final String label, @DrawableRes int icon, @ColorRes int primaryColor) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label,
+                    ((BitmapDrawable) ContextCompat.getDrawable(this, icon)).getBitmap(),
+                    ContextCompat.getColor(this, primaryColor));
+            setTaskDescription(taskDescription);
+        }
     }
 
-    protected boolean isActivityUnderNavigationBar() {
+    public boolean isActivitySizeConfigurable() {
         return false;
     }
-
-    @IdRes
-    protected abstract int getContainerId();
-
 }
