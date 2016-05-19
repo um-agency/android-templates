@@ -63,7 +63,7 @@ public abstract class TouchinActivity<TLogic extends Logic> extends ViewControll
 
     protected abstract void configureActivitySize();
 
-    protected void setupTaskDescriptor(@NonNull final String label, @DrawableRes int icon, @ColorRes int primaryColor) {
+    protected void setupTaskDescriptor(@NonNull final String label, @DrawableRes final int icon, @ColorRes final int primaryColor) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label,
                     ((BitmapDrawable) ContextCompat.getDrawable(this, icon)).getBitmap(),
