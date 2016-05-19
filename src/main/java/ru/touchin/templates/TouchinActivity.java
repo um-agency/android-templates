@@ -19,8 +19,20 @@
 
 package ru.touchin.templates;
 
+import android.app.ActivityManager;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.view.View;
+
 import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
 import ru.touchin.roboswag.components.utils.Logic;
+import ru.touchin.roboswag.components.utils.UiUtils;
 
 /**
  * Created by Gavriil Sitnikov on 11/03/16.
@@ -28,8 +40,46 @@ import ru.touchin.roboswag.components.utils.Logic;
  */
 public abstract class TouchinActivity<TLogic extends Logic> extends ViewControllerActivity<TLogic> {
 
-    protected TouchinActivity() {
-        super();
+    @Override
+    protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        onConfigureActivityScreen();
     }
 
+    private void onConfigureActivityScreen() {
+        if (isActivityUnderSystemBars() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (UiUtils.hasSoftKeys(this)) {
+                getWindow().getDecorView()
+                        .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+            } else {
+                getWindow().getDecorView()
+                        .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            }
+
+            configureActivityPaddings(UiUtils.getStatusBarHeight(this), UiUtils.getNavigationBarHeight(this));
+        }
+    }
+
+    /**
+     * paddings are used to configure an activity size. By default, {@code #topPadding} is statusBar height and {@code #bottomPadding}
+     * is NavigationBar height
+     */
+    protected void configureActivityPaddings(final int suggestedTopPadding, final int suggestedBottomPadding) {
+        // do nothing
+    }
+
+    protected void setupTaskDescriptor(@NonNull final String label, @DrawableRes final int iconRes, @ColorRes final int primaryColorRes) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label,
+                    ((BitmapDrawable) ContextCompat.getDrawable(this, iconRes)).getBitmap(),
+                    ContextCompat.getColor(this, primaryColorRes));
+            setTaskDescription(taskDescription);
+        }
+    }
+
+    public boolean isActivityUnderSystemBars() {
+        return false;
+    }
 }
