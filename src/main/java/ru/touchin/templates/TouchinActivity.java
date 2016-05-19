@@ -66,15 +66,15 @@ public abstract class TouchinActivity<TLogic extends Logic> extends ViewControll
      * paddings are used to configure an activity size. By default, {@code #topPadding} is statusBar height and {@code #bottomPadding}
      * is NavigationBar height
      */
-    protected void configureActivityPaddings(final int topPadding, final int bottomPadding) {
+    protected void configureActivityPaddings(final int suggestedTopPadding, final int suggestedBottomPadding) {
         // do nothing
     }
 
-    protected void setupTaskDescriptor(@NonNull final String label, @DrawableRes final int icon, @ColorRes final int primaryColor) {
+    protected void setupTaskDescriptor(@NonNull final String label, @DrawableRes final int iconRes, @ColorRes final int primaryColorRes) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label,
-                    ((BitmapDrawable) ContextCompat.getDrawable(this, icon)).getBitmap(),
-                    ContextCompat.getColor(this, primaryColor));
+                    ((BitmapDrawable) ContextCompat.getDrawable(this, iconRes)).getBitmap(),
+                    ContextCompat.getColor(this, primaryColorRes));
             setTaskDescription(taskDescription);
         }
     }
