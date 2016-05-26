@@ -43,10 +43,10 @@ public abstract class TouchinActivity<TLogic extends Logic> extends ViewControll
     @Override
     protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        onConfigureActivityScreen();
+        onConfigureActivityScreen(savedInstanceState);
     }
 
-    private void onConfigureActivityScreen() {
+    private void onConfigureActivityScreen(@Nullable final Bundle savedInstanceState) {
         if (isActivityUnderSystemBars() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (UiUtils.hasSoftKeys(this)) {
                 getWindow().getDecorView()
@@ -58,7 +58,7 @@ public abstract class TouchinActivity<TLogic extends Logic> extends ViewControll
                         .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
             }
 
-            configureActivityPaddings(UiUtils.getStatusBarHeight(this), UiUtils.getNavigationBarHeight(this));
+            configureActivityPaddings(savedInstanceState, UiUtils.getStatusBarHeight(this), UiUtils.getNavigationBarHeight(this));
         }
     }
 
@@ -66,7 +66,8 @@ public abstract class TouchinActivity<TLogic extends Logic> extends ViewControll
      * paddings are used to configure an activity size. By default, {@code #topPadding} is statusBar height and {@code #bottomPadding}
      * is NavigationBar height
      */
-    protected void configureActivityPaddings(final int suggestedTopPadding, final int suggestedBottomPadding) {
+    protected void configureActivityPaddings(@Nullable final Bundle savedInstanceState,
+                                             final int suggestedTopPadding, final int suggestedBottomPadding) {
         // do nothing
     }
 
