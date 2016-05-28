@@ -40,6 +40,26 @@ import ru.touchin.roboswag.components.utils.UiUtils;
  */
 public abstract class TouchinActivity<TLogic extends Logic> extends ViewControllerActivity<TLogic> {
 
+    private int suggestedTopPadding;
+    private int suggestedBottomPadding;
+
+    public int getSuggestedTopPadding() {
+        return suggestedTopPadding;
+    }
+
+    public int getSuggestedBottomPadding() {
+        return suggestedBottomPadding;
+    }
+
+    @Override
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (isActivityUnderSystemBars() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            suggestedTopPadding = UiUtils.getStatusBarHeight(this);
+            suggestedBottomPadding = UiUtils.getNavigationBarHeight(this);
+        }
+    }
+
     @Override
     protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -58,7 +78,7 @@ public abstract class TouchinActivity<TLogic extends Logic> extends ViewControll
                         .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
             }
 
-            configureActivityPaddings(savedInstanceState, UiUtils.getStatusBarHeight(this), UiUtils.getNavigationBarHeight(this));
+            configureActivityPaddings(savedInstanceState, suggestedTopPadding, suggestedBottomPadding);
         }
     }
 
