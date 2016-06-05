@@ -19,17 +19,18 @@
 
 package ru.touchin.templates.model;
 
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.api.client.util.Data;
 
-import ru.touchin.roboswag.core.data.Model;
-import ru.touchin.roboswag.core.data.exceptions.ValidationException;
+import java.util.List;
 
 /**
  * Created by Gavriil Sitnikov on 13/11/2015.
  */
-public abstract class GoogleJsonModel extends Model {
+public abstract class GoogleJsonModel {
 
     protected static boolean isNullOrEmpty(@Nullable final Object object) {
         return object == null || Data.isNull(object);
@@ -51,6 +52,27 @@ public abstract class GoogleJsonModel extends Model {
         if (object != null && isNullOrEmpty(object)) {
             throw new ValidationException("Nullable or not empty object is empty");
         }
+    }
+
+    protected static void validateList(@NonNull final List list) throws ValidationException {
+        for (final Object item : list) {
+            if (item instanceof GoogleJsonModel) {
+                ((GoogleJsonModel) item).validate();
+            }
+        }
+    }
+
+    @CallSuper
+    public void validate() throws ValidationException {
+        //do nothing
+    }
+
+    public static class ValidationException extends Exception {
+
+        public ValidationException(@NonNull final String reason) {
+            super(reason);
+        }
+
     }
 
 }
