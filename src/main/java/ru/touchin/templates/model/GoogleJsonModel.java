@@ -35,11 +35,6 @@ public abstract class GoogleJsonModel extends Model {
         return object == null || Data.isNull(object);
     }
 
-    @Nullable
-    protected static <T> T makeNullable(@Nullable final T data) {
-        return !isNullOrEmpty(data) ? data : null;
-    }
-
     protected static void validateNonNull(@Nullable final Object object) throws ValidationException {
         if (isNullOrEmpty(object)) {
             throw new ValidationException("Not nullable object is null or empty");
