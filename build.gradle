@@ -25,7 +25,7 @@ dependencies {
     }
     compile 'net.danlew:android.joda:2.9.3'
 
-    provided 'io.reactivex:rxandroid:1.1.0'
+    provided 'io.reactivex:rxandroid:1.2.1'
 
     provided('com.google.http-client:google-http-client-android:1.21.0') {
         exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
