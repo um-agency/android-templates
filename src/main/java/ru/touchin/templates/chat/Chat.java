@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ru.touchin.roboswag.core.utils.android.RxAndroidUtils;
+import ru.touchin.roboswag.core.observables.RxAndroidUtils;
 import rx.Observable;
 import rx.Scheduler;
 import rx.subjects.BehaviorSubject;

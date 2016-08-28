@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import ru.touchin.roboswag.components.listing.ItemsProvider;
-import ru.touchin.roboswag.core.utils.android.RxAndroidUtils;
+import ru.touchin.roboswag.core.observables.RxAndroidUtils;
 import rx.Observable;
 import rx.Scheduler;
 import rx.exceptions.OnErrorThrowable;

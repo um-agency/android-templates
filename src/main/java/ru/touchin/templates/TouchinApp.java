@@ -22,8 +22,8 @@ package ru.touchin.templates;
 import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
-import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -32,7 +32,10 @@ import net.danlew.android.joda.JodaTimeAndroid;
 import io.fabric.sdk.android.Fabric;
 import ru.touchin.roboswag.components.views.TypefacedViewHelper;
 import ru.touchin.roboswag.core.log.ConsoleLogProcessor;
-import ru.touchin.roboswag.core.log.LcHelper;
+import ru.touchin.roboswag.core.log.Lc;
+import ru.touchin.roboswag.core.log.LcGroup;
+import ru.touchin.roboswag.core.log.LcLevel;
+import ru.touchin.roboswag.core.log.LogProcessor;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 
 /**
@@ -55,43 +58,38 @@ public abstract class TouchinApp extends Application {
         JodaTimeAndroid.init(this);
         if (isDebug()) {
             TypefacedViewHelper.setAllowEmptyCustomTypeface(false);
-
-            LcHelper.setCrashOnAssertions(true);
-            LcHelper.initialize(Log.VERBOSE);
+            Lc.initialize(new ConsoleLogProcessor(LcLevel.VERBOSE), true);
         } else {
             TypefacedViewHelper.setAllowEmptyCustomTypeface(true);
-
-            LcHelper.setCrashOnAssertions(false);
             final Crashlytics crashlytics = new Crashlytics();
             Fabric.with(this, crashlytics);
-            LcHelper.initialize(Log.ERROR, new CrashlyticsLogProcessor(crashlytics));
+            Lc.initialize(new CrashlyticsLogProcessor(crashlytics), false);
         }
     }
 
-    private static class CrashlyticsLogProcessor extends ConsoleLogProcessor {
+    private static class CrashlyticsLogProcessor extends LogProcessor {
 
         @NonNull
         private final Crashlytics crashlytics;
 
         public CrashlyticsLogProcessor(@NonNull final Crashlytics crashlytics) {
-            super();
+            super(LcLevel.ASSERT);
             this.crashlytics = crashlytics;
         }
 
         @Override
-        public void processLogMessage(final int logLevel, @NonNull final String tag, @NonNull final String message) {
-            super.processLogMessage(logLevel, tag, message);
-            if (logLevel >= Log.ASSERT) {
-                crashlytics.core.logException(new ShouldNotHappenException(tag + ':' + message));
-            }
-        }
-
-        @Override
-        public void processLogMessage(final int logLevel, @NonNull final String tag, @NonNull final String message, @NonNull final Throwable ex) {
-            super.processLogMessage(logLevel, tag, message, ex);
-            if (logLevel >= Log.ASSERT) {
-                crashlytics.core.log(tag + ':' + message);
-                crashlytics.core.logException(ex);
+        public void processLogMessage(@NonNull final LcGroup group,
+                                      @NonNull final LcLevel level,
+                                      @NonNull final String tag,
+                                      @NonNull final String message,
+                                      @Nullable final Throwable throwable) {
+            if (!level.lessThan(LcLevel.ASSERT)) {
+                if (throwable != null) {
+                    crashlytics.core.log(tag + ':' + message);
+                    crashlytics.core.logException(throwable);
+                } else {
+                    crashlytics.core.logException(new ShouldNotHappenException(tag + ':' + message));
+                }
             }
         }
 
