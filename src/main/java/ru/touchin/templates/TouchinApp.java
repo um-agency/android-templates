@@ -30,7 +30,9 @@ import com.crashlytics.android.Crashlytics;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import io.fabric.sdk.android.Fabric;
-import ru.touchin.roboswag.components.views.TypefacedViewHelper;
+import ru.touchin.roboswag.components.navigation.fragments.ViewControllerFragment;
+import ru.touchin.roboswag.components.views.TypefacedEditText;
+import ru.touchin.roboswag.components.views.TypefacedTextView;
 import ru.touchin.roboswag.core.log.ConsoleLogProcessor;
 import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.log.LcGroup;
@@ -40,10 +42,18 @@ import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 
 /**
  * Created by Gavriil Sitnikov on 10/03/16.
- * TODO: description
+ * Base class of application to extends for Touch Instinct related projects.
  */
 public abstract class TouchinApp extends Application {
 
+    /**
+     * Returns if application runs in debug mode or not.
+     * In most cases it should return BuildConfig.DEBUG.
+     * If it will returns true then debug options for RoboSwag components will be enabled.
+     * In non-debug mode it will also enables Crashlitycs.
+     *
+     * @return True if application runs in debug mode.
+     */
     protected abstract boolean isDebug();
 
     @Override
@@ -57,10 +67,11 @@ public abstract class TouchinApp extends Application {
         super.onCreate();
         JodaTimeAndroid.init(this);
         if (isDebug()) {
-            TypefacedViewHelper.setAllowEmptyCustomTypeface(false);
+            ViewControllerFragment.setInDebugMode();
+            TypefacedEditText.setInDebugMode();
+            TypefacedTextView.setInDebugMode();
             Lc.initialize(new ConsoleLogProcessor(LcLevel.VERBOSE), true);
         } else {
-            TypefacedViewHelper.setAllowEmptyCustomTypeface(true);
             final Crashlytics crashlytics = new Crashlytics();
             Fabric.with(this, crashlytics);
             Lc.initialize(new CrashlyticsLogProcessor(crashlytics), false);

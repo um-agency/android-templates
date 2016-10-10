@@ -24,98 +24,182 @@ import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.observables.RxAndroidUtils;
+import ru.touchin.roboswag.core.observables.collections.Change;
+import ru.touchin.roboswag.core.observables.collections.ObservableCollection;
+import ru.touchin.roboswag.core.observables.collections.ObservableList;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscription;
+import rx.functions.Actions;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
 /**
  * Created by Gavriil Sitnikov on 12/05/16.
+ * Object which is containing logic of sending messages as queue one-by-one.
+ *
+ * @param <TOutgoingMessage> Type of messages to send.
  */
 public abstract class Chat<TOutgoingMessage> {
 
+    private static final long RETRY_SENDING_DELAY = TimeUnit.SECONDS.toMillis(5);
+
     @NonNull
-    private final PublishSubject<TOutgoingMessage> messageToSendEvent = PublishSubject.create();
-    private final BehaviorSubject<List<TOutgoingMessage>> sendingMessages = BehaviorSubject.create(new ArrayList<>());
+    private final ObservableList<TOutgoingMessage> sendingMessages = new ObservableList<>();
     @NonNull
-    private final BehaviorSubject<Boolean> isActivated = BehaviorSubject.create(false);
-    @NonNull
-    private final PublishSubject<Void> retrySendingEvent = PublishSubject.create();
+    private final PublishSubject<?> retrySendingRequest = PublishSubject.create();
     @NonNull
     private final BehaviorSubject<Boolean> isSendingInError = BehaviorSubject.create(false);
+    @NonNull
+    private final Scheduler sendingScheduler = RxAndroidUtils.createLooperScheduler();
+    @NonNull
+    private final Observable<TOutgoingMessage> messagesToSendObservable;
+    @Nullable
+    private Subscription activationSubscription;
 
     public Chat(@Nullable final Collection<TOutgoingMessage> messagesToSend) {
-        final Scheduler sendingScheduler = RxAndroidUtils.createLooperScheduler();
-        messageToSendEvent
-                .observeOn(sendingScheduler)
-                .doOnNext(message -> {
-                    final List<TOutgoingMessage> messages = new ArrayList<>(sendingMessages.getValue());
-                    messages.add(0, message);
-                    sendingMessages.onNext(messages);
-                })
-                .concatMap(message -> isActivated
-                        .filter(activated -> activated)
-                        .first()
-                        .switchMap(ignored -> Observable
-                                .combineLatest(isMessageInCacheObservable(message), isMessageInActualObservable(message),
-                                        (messageInCache, messageInActual) -> !messageInCache && !messageInActual)
-                                .observeOn(sendingScheduler)
-                                .switchMap(shouldSendMessage -> {
-                                    if (!shouldSendMessage) {
-                                        return Observable.empty();
-                                    }
-                                    return sendMessageObservable(message)
-                                            .doOnSubscribe(() -> isSendingInError.onNext(false))
-                                            .retryWhen(attempts -> attempts.map(throwable -> {
-                                                isSendingInError.onNext(true);
-                                                return retrySendingEvent;
-                                            }))
-                                            .doOnCompleted(() -> {
-                                                final List<TOutgoingMessage> messages = new ArrayList<>(sendingMessages.getValue());
-                                                messages.remove(message);
-                                                sendingMessages.onNext(messages);
-                                            });
-                                })))
-                .subscribe();
-
         if (messagesToSend != null) {
-            for (final TOutgoingMessage message : messagesToSend) {
-                messageToSendEvent.onNext(message);
-            }
+            sendingMessages.addAll(messagesToSend);
         }
+
+        messagesToSendObservable = sendingMessages.observeItems()
+                .first()
+                .concatMap(initialMessages -> Observable.from(initialMessages)
+                        .concatWith(sendingMessages.observeChanges().concatMap(changes -> {
+                            final Collection<TOutgoingMessage> insertedMessages = new ArrayList<>();
+                            for (final Change<TOutgoingMessage> change : changes.getChanges()) {
+                                if (change.getType() == Change.Type.INSERTED) {
+                                    insertedMessages.addAll(change.getChangedItems());
+                                }
+                            }
+                            return insertedMessages.isEmpty() ? Observable.empty() : Observable.from(insertedMessages);
+                        })))
+                .doOnNext(message -> sendingScheduler.createWorker().schedule(() -> internalSendMessage(message)));
     }
 
+    /**
+     * Returns {@link Observable} to check if sending have failed so it is in error state and user have to retry send messages.
+     *
+     * @return {@link Observable} to check if sending have failed.
+     */
     @NonNull
-    public Observable<List<TOutgoingMessage>> observeSendingMessages() {
+    public Observable<Boolean> observeIsSendingInError() {
+        return isSendingInError.distinctUntilChanged();
+    }
+
+    /**
+     * Returns {@link ObservableCollection} of currently sending messages.
+     *
+     * @return Collection of sending messages.
+     */
+    @NonNull
+    public ObservableCollection<TOutgoingMessage> getSendingMessages() {
         return sendingMessages;
     }
 
+    /**
+     * Returns {@link Observable} to determine if message is in cache stored on disk.
+     * It is needed to not send message which is already loaded from server and cached.
+     *
+     * @param message Message to check if it is in cache;
+     * @return {@link Observable} which is checking if message is in cache.
+     */
     @NonNull
     protected abstract Observable<Boolean> isMessageInCacheObservable(@NonNull final TOutgoingMessage message);
 
+    /**
+     * Returns {@link Observable} to determine if message is in actually loaded messages.
+     * It is needed to not send message which is already loaded from server and showing to user at this moment.
+     *
+     * @param message Message to check if it is in actual data;
+     * @return {@link Observable} which is checking if message is in actual data.
+     */
     @NonNull
     protected abstract Observable<Boolean> isMessageInActualObservable(@NonNull final TOutgoingMessage message);
 
+    /**
+     * Method to create {@link Observable} which is sending message to server.
+     *
+     * @param message Message to send;
+     * @return {@link Observable} to send message.
+     */
     @NonNull
-    protected abstract Observable<?> sendMessageObservable(@NonNull final TOutgoingMessage message);
+    protected abstract Observable<?> createSendMessageObservable(@NonNull final TOutgoingMessage message);
 
+    /**
+     * Method to start sending message.
+     *
+     * @param message Message to send.
+     */
     public void sendMessage(@NonNull final TOutgoingMessage message) {
-        messageToSendEvent.onNext(message);
+        sendingMessages.add(0, message);
     }
 
+    /**
+     * Method to start sending collection of messages.
+     *
+     * @param messages Messages to send.
+     */
+    public void sendMessages(@NonNull final Collection<TOutgoingMessage> messages) {
+        sendingMessages.addAll(0, messages);
+    }
+
+    /**
+     * Activates chat so it will start sending messages.
+     */
     public void activate() {
-        isActivated.onNext(true);
+        if (activationSubscription != null) {
+            Lc.assertion("Chat already activated");
+            return;
+        }
+        activationSubscription = messagesToSendObservable.subscribe();
     }
 
+    /**
+     * Method to retry send messages.
+     */
     public void retrySend() {
-        isSendingInError.onNext(false);
+        retrySendingRequest.onNext(null);
     }
 
+    /**
+     * Deactivates chat so it will stop sending messages.
+     */
     public void deactivate() {
-        isActivated.onNext(false);
+        if (activationSubscription == null) {
+            Lc.assertion("Chat not activated yet");
+            return;
+        }
+        activationSubscription.unsubscribe();
+        activationSubscription = null;
+    }
+
+    private void internalSendMessage(@NonNull final TOutgoingMessage message) {
+        final CountDownLatch blocker = new CountDownLatch(1);
+        final Subscription subscription = Observable
+                .combineLatest(isMessageInActualObservable(message), isMessageInActualObservable(message),
+                        (messageInCache, messageInActual) -> !messageInCache && !messageInActual)
+                .subscribeOn(Schedulers.computation())
+                .first()
+                .switchMap(shouldSendMessage -> shouldSendMessage ? createSendMessageObservable(message).ignoreElements() : Observable.empty())
+                .retryWhen(attempts -> attempts.switchMap(ignored -> Observable
+                        .merge(retrySendingRequest, Observable.timer(RETRY_SENDING_DELAY, TimeUnit.MILLISECONDS))
+                        .first()
+                        .doOnCompleted(() -> isSendingInError.onNext(false))))
+                .doOnUnsubscribe(blocker::countDown)
+                .subscribe(Actions.empty(), throwable -> isSendingInError.onNext(true));
+        try {
+            blocker.await();
+            sendingMessages.remove(message);
+        } catch (final InterruptedException exception) {
+            subscription.unsubscribe();
+        }
     }
 
 }

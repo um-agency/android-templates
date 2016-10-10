@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Touch Instinct
+ *  Copyright (c) 2015 RoboSwag (Gavriil Sitnikov, Vsevolod Ivanov)
  *
  *  This file is part of RoboSwag library.
  *
@@ -17,16 +17,25 @@
  *
  */
 
-package ru.touchin.templates.model.increasing;
+package ru.touchin.templates.socket;
 
 import android.support.annotation.NonNull;
 
 /**
- * Created by Gavriil Sitnikov on 18/05/16.
+ * Created by Gavriil Sitnikov on 29/02/16.
+ * Interface to implement for objects which could handle message coming from socket.
+ *
+ * @param <TMessage> Type of message coming from socket.
  */
-public interface IncreasingItem {
+public interface SocketMessageHandler<TMessage> {
 
-    @NonNull
-    String getItemId();
+    /**
+     * Method to handle message
+     *
+     * @param message Message to handle;
+     * @return Result of handling message;
+     * @throws Exception Throws during handling.
+     */
+    TMessage handleMessage(@NonNull TMessage message) throws Exception;
 
 }

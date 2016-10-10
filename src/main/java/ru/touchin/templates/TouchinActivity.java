@@ -20,6 +20,7 @@
 package ru.touchin.templates;
 
 import android.app.ActivityManager;
+import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,69 +29,38 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.view.View;
 
 import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
 import ru.touchin.roboswag.components.utils.Logic;
-import ru.touchin.roboswag.components.utils.UiUtils;
+import ru.touchin.roboswag.core.log.Lc;
 
 /**
  * Created by Gavriil Sitnikov on 11/03/16.
- * TODO: description
+ * Base class of activity to extends for Touch Instinct related projects.
+ *
+ * @param <TLogic> Type of application's {@link Logic}.
  */
 public abstract class TouchinActivity<TLogic extends Logic> extends ViewControllerActivity<TLogic> {
-
-    private int suggestedTopPadding;
-    private int suggestedBottomPadding;
-
-    public int getSuggestedTopPadding() {
-        return suggestedTopPadding;
-    }
-
-    public int getSuggestedBottomPadding() {
-        return suggestedBottomPadding;
-    }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (isActivityUnderSystemBars() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            suggestedTopPadding = UiUtils.getStatusBarHeight(this);
-            suggestedBottomPadding = UiUtils.getNavigationBarHeight(this);
-        }
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        onConfigureActivityScreen(savedInstanceState);
-    }
-
-    private void onConfigureActivityScreen(@Nullable final Bundle savedInstanceState) {
-        if (isActivityUnderSystemBars() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (UiUtils.hasSoftKeys(this)) {
-                getWindow().getDecorView()
-                        .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-            } else {
-                getWindow().getDecorView()
-                        .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-            }
-
-            configureActivityPaddings(savedInstanceState, suggestedTopPadding, suggestedBottomPadding);
+        // Possible work around for market launches. See http://code.google.com/p/android/issues/detail?id=2373
+        // for more details. Essentially, the market launches the main activity on top of other activities.
+        // we never want this to happen. Instead, we check if we are the root and if not, we finish.
+        if (!isTaskRoot() && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(getIntent().getAction())) {
+            Lc.e("Finishing activity as it is launcher but not root");
+            finish();
         }
     }
 
     /**
-     * paddings are used to configure an activity size. By default, {@code #topPadding} is statusBar height and {@code #bottomPadding}
-     * is NavigationBar height
+     * Setup task description of application for Android 5.0 and later. It is showing when user opens task bar.
+     *
+     * @param label           Name of application to show in task bar;
+     * @param iconRes         Icon of application to show in task bar;
+     * @param primaryColorRes Color of application to show in task bar.
      */
-    protected void configureActivityPaddings(@Nullable final Bundle savedInstanceState,
-                                             final int suggestedTopPadding, final int suggestedBottomPadding) {
-        // do nothing
-    }
-
     protected void setupTaskDescriptor(@NonNull final String label, @DrawableRes final int iconRes, @ColorRes final int primaryColorRes) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label,
@@ -100,7 +70,4 @@ public abstract class TouchinActivity<TLogic extends Logic> extends ViewControll
         }
     }
 
-    public boolean isActivityUnderSystemBars() {
-        return false;
-    }
 }
