@@ -37,6 +37,7 @@ import javax.net.ssl.SSLException;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import okhttp3.internal.framed.StreamResetException;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import ru.touchin.roboswag.core.log.Lc;
@@ -82,7 +83,8 @@ public class GoogleJsonFactory extends Converter.Factory {
             } catch (final IOException exception) {
                 if (!(exception instanceof SocketException)
                         && !(exception instanceof InterruptedIOException)
-                        && !(exception instanceof SSLException)) {
+                        && !(exception instanceof SSLException)
+                        && !(exception instanceof StreamResetException)) {
                     Lc.assertion(exception);
                 }
                 throw exception;
