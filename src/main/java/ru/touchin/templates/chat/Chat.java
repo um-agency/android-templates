@@ -25,10 +25,10 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import ru.touchin.roboswag.core.log.Lc;
-import ru.touchin.roboswag.core.observables.RxAndroidUtils;
 import ru.touchin.roboswag.core.observables.collections.Change;
 import ru.touchin.roboswag.core.observables.collections.ObservableCollection;
 import ru.touchin.roboswag.core.observables.collections.ObservableList;
@@ -57,7 +57,7 @@ public abstract class Chat<TOutgoingMessage> {
     @NonNull
     private final BehaviorSubject<Boolean> isSendingInError = BehaviorSubject.create(false);
     @NonNull
-    private final Scheduler sendingScheduler = RxAndroidUtils.createLooperScheduler();
+    private final Scheduler sendingScheduler = Schedulers.from(Executors.newSingleThreadExecutor());
     @NonNull
     private final Observable<TOutgoingMessage> messagesToSendObservable;
     @Nullable

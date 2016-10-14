@@ -26,11 +26,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import ru.touchin.roboswag.core.log.Lc;
-import ru.touchin.roboswag.core.observables.RxAndroidUtils;
 import ru.touchin.templates.ApiModel;
 import rx.Observable;
 import rx.Scheduler;
@@ -44,7 +44,7 @@ import rx.schedulers.Schedulers;
 public abstract class SocketConnection {
 
     @NonNull
-    private final Scheduler scheduler = RxAndroidUtils.createLooperScheduler();
+    private final Scheduler scheduler = Schedulers.from(Executors.newSingleThreadExecutor());
     @NonNull
     private final Map<SocketEvent, Observable> messagesObservableCache = new HashMap<>();
     @NonNull
