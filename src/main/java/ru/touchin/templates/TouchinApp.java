@@ -21,6 +21,7 @@ package ru.touchin.templates;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
@@ -28,6 +29,8 @@ import android.support.multidex.MultiDex;
 import com.crashlytics.android.Crashlytics;
 
 import net.danlew.android.joda.JodaTimeAndroid;
+
+import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
 import ru.touchin.roboswag.components.navigation.fragments.ViewControllerFragment;
@@ -39,6 +42,13 @@ import ru.touchin.roboswag.core.log.LcGroup;
 import ru.touchin.roboswag.core.log.LcLevel;
 import ru.touchin.roboswag.core.log.LogProcessor;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
+import rx.Scheduler;
+import rx.Subscription;
+import rx.android.plugins.RxAndroidPlugins;
+import rx.android.plugins.RxAndroidSchedulersHook;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.subscriptions.Subscriptions;
 
 /**
  * Created by Gavriil Sitnikov on 10/03/16.
@@ -65,6 +75,12 @@ public abstract class TouchinApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
+            @Override
+            public Scheduler getMainThreadScheduler() {
+                return new MainThreadScheduler();
+            }
+        });
         JodaTimeAndroid.init(this);
         if (isDebug()) {
             ViewControllerFragment.setInDebugMode();
@@ -102,6 +118,49 @@ public abstract class TouchinApp extends Application {
                     crashlytics.core.logException(new ShouldNotHappenException(tag + ':' + message));
                 }
             }
+        }
+
+    }
+
+    /**
+     * This hacky class is needed to execute actions immediately on main thread but not schedule on main thread handler with 0 delay instead.
+     */
+    private static class MainThreadScheduler extends Scheduler {
+
+        @Override
+        public Worker createWorker() {
+            return new WrapperMainThreadWorker();
+        }
+
+        private class WrapperMainThreadWorker extends Worker {
+
+            @NonNull
+            private final Worker parentWorker = AndroidSchedulers.from(Looper.getMainLooper()).createWorker();
+
+            @Override
+            public Subscription schedule(@NonNull final Action0 action) {
+                if (Looper.getMainLooper().equals(Looper.myLooper())) {
+                    action.call();
+                    return Subscriptions.unsubscribed();
+                }
+                return parentWorker.schedule(action);
+            }
+
+            @Override
+            public Subscription schedule(@NonNull final Action0 action, final long delayTime, @NonNull final TimeUnit unit) {
+                return parentWorker.schedule(action, delayTime, unit);
+            }
+
+            @Override
+            public void unsubscribe() {
+                parentWorker.unsubscribe();
+            }
+
+            @Override
+            public boolean isUnsubscribed() {
+                return parentWorker.isUnsubscribed();
+            }
+
         }
 
     }
