@@ -193,10 +193,9 @@ public abstract class Chat<TOutgoingMessage> {
                         .first()
                         .doOnCompleted(() -> isSendingInError.onNext(false))))
                 .doOnUnsubscribe(blocker::countDown)
-                .subscribe(Actions.empty(), throwable -> isSendingInError.onNext(true));
+                .subscribe(Actions.empty(), throwable -> isSendingInError.onNext(true), () -> sendingMessages.remove(message));
         try {
             blocker.await();
-            sendingMessages.remove(message);
         } catch (final InterruptedException exception) {
             subscription.unsubscribe();
         }
