@@ -188,12 +188,15 @@ public abstract class Chat<TOutgoingMessage> {
                 .subscribeOn(Schedulers.computation())
                 .first()
                 .switchMap(shouldSendMessage -> shouldSendMessage ? createSendMessageObservable(message).ignoreElements() : Observable.empty())
-                .retryWhen(attempts -> attempts.switchMap(ignored -> Observable
-                        .merge(retrySendingRequest, Observable.timer(RETRY_SENDING_DELAY, TimeUnit.MILLISECONDS))
-                        .first()
-                        .doOnCompleted(() -> isSendingInError.onNext(false))))
+                .retryWhen(attempts -> attempts.switchMap(ignored -> {
+                    isSendingInError.onNext(true);
+                    return Observable
+                            .merge(retrySendingRequest, Observable.timer(RETRY_SENDING_DELAY, TimeUnit.MILLISECONDS))
+                            .first()
+                            .doOnCompleted(() -> isSendingInError.onNext(false));
+                }))
                 .doOnUnsubscribe(blocker::countDown)
-                .subscribe(Actions.empty(), throwable -> isSendingInError.onNext(true), () -> sendingMessages.remove(message));
+                .subscribe(Actions.empty(), Lc::assertion, () -> sendingMessages.remove(message));
         try {
             blocker.await();
         } catch (final InterruptedException exception) {
