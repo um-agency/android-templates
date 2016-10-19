@@ -156,8 +156,7 @@ public abstract class SocketConnection {
                     observableSubscriber.onNext(result);
                     observableSubscriber.onCompleted();
                 })
-                .subscribeOn(scheduler)
-                .observeOn(Schedulers.computation()));
+                .subscribeOn(scheduler));
     }
 
     /**
