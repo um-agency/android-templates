@@ -59,7 +59,7 @@ public final class CalendarUtils {
      * @param calendarItems List of {@link CalendarItem} where need to find specific element;
      * @param position      Position of adapter;
      * @return Position of Header that respond to requested position.
-     *         Returns null if Header or related CalendarItem was not found for specified position.
+     * Returns null if Header or related CalendarItem was not found for specified position.
      */
     @Nullable
     public static Integer findPositionOfSelectedMonth(@NonNull final List<CalendarItem> calendarItems, final long position) {
@@ -76,7 +76,7 @@ public final class CalendarUtils {
      * @param calendarItems List of {@link CalendarItem} where need to find specific element;
      * @param date          Requested date in milliseconds.
      * @return Position of Calendar cell that that has specific date.
-     *         Returns null if CalendarItem was not found for specified position.
+     * Returns null if CalendarItem was not found for specified position.
      */
     @Nullable
     public static Integer findPositionByDate(@NonNull final List<CalendarItem> calendarItems, final long date) {
@@ -258,12 +258,12 @@ public final class CalendarUtils {
 
         int shift = calendarItems.get(calendarItems.size() - 1).getEndRange();
         final DateTime nextMonthFirstDay = dateTime.plusDays(1);
-        final int firstFayInNextMonth = nextMonthFirstDay.getDayOfWeek() - 1;
-        calendarItems.add(new CalendarEmptyItem(shift, shift + (7 - firstFayInNextMonth) - 1));
-        shift += 7 - firstFayInNextMonth;
+        final int firstDayInNextMonth = nextMonthFirstDay.getDayOfWeek() - 1;
+        calendarItems.add(new CalendarEmptyItem(shift + 1, shift + (7 - firstDayInNextMonth)));
+        shift += 7 - firstDayInNextMonth + 1;
         calendarItems.add(new CalendarHeaderItem(nextMonthFirstDay.getMonthOfYear() + 1, shift, shift));
         shift += 1;
-        calendarItems.add(new CalendarEmptyItem(shift, shift + firstFayInNextMonth - 1));
+        calendarItems.add(new CalendarEmptyItem(shift, shift + firstDayInNextMonth - 1));
     }
 
     private CalendarUtils() {
