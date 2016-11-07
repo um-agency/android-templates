@@ -258,12 +258,12 @@ public final class CalendarUtils {
 
         int shift = calendarItems.get(calendarItems.size() - 1).getEndRange();
         final DateTime nextMonthFirstDay = dateTime.plusDays(1);
-        final int firstFayInNextMonth = nextMonthFirstDay.getDayOfWeek() - 1;
-        calendarItems.add(new CalendarEmptyItem(shift, shift + (7 - firstFayInNextMonth) - 1));
-        shift += 7 - firstFayInNextMonth;
+        final int firstDayInNextMonth = nextMonthFirstDay.getDayOfWeek() - 1;
+        calendarItems.add(new CalendarEmptyItem(shift + 1, shift + (7 - firstDayInNextMonth)));
+        shift += 7 - firstDayInNextMonth + 1;
         calendarItems.add(new CalendarHeaderItem(nextMonthFirstDay.getMonthOfYear() + 1, shift, shift));
         shift += 1;
-        calendarItems.add(new CalendarEmptyItem(shift, shift + firstFayInNextMonth - 1));
+        calendarItems.add(new CalendarEmptyItem(shift, shift + firstDayInNextMonth - 1));
     }
 
     private CalendarUtils() {
