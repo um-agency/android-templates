@@ -183,7 +183,7 @@ public abstract class Chat<TOutgoingMessage> {
     private void internalSendMessage(@NonNull final TOutgoingMessage message) {
         final CountDownLatch blocker = new CountDownLatch(1);
         final Subscription subscription = Observable
-                .combineLatest(isMessageInActualObservable(message), isMessageInActualObservable(message),
+                .combineLatest(isMessageInCacheObservable(message), isMessageInActualObservable(message),
                         (messageInCache, messageInActual) -> !messageInCache && !messageInActual)
                 .subscribeOn(Schedulers.computation())
                 .first()
