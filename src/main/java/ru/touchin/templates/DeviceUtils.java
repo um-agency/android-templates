@@ -139,27 +139,27 @@ public final class DeviceUtils {
     }
 
     /**
-     * Available network types
+     * Available network types.
      */
     public enum NetworkType {
         /**
-         * Mobile 2G network
+         * Mobile 2G network.
          */
         MOBILE_2G("2g"),
         /**
-         * Mobile 3G network
+         * Mobile 3G network.
          */
         MOBILE_3G("3g"),
         /**
-         * Mobile LTE network
+         * Mobile LTE network.
          */
         MOBILE_LTE("lte"),
         /**
-         * Wi-Fi network
+         * Wi-Fi network.
          */
         WI_FI("Wi-Fi"),
         /**
-         * No network
+         * No network.
          */
         NONE("none");
 
@@ -171,7 +171,7 @@ public final class DeviceUtils {
         }
 
         /**
-         * @return Network type readable name
+         * @return Network type readable name.
          */
         @NonNull
         public String getName() {
