@@ -33,6 +33,9 @@ import java.util.UUID;
 
 import ru.touchin.roboswag.core.log.Lc;
 
+/**
+ * Utility class that is providing common methods related to android device.
+ */
 public final class DeviceUtils {
 
     private static final String BUGGED_DEVICE_ID = "9774d56d682e549c";
@@ -91,6 +94,12 @@ public final class DeviceUtils {
         }
     }
 
+    /**
+     * Detects active network type.
+     *
+     * @param context Application context
+     * @return Active network type {@link NetworkType}
+     */
     @NonNull
     public static NetworkType getNetworkType(@NonNull final Context context) {
         final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -129,11 +138,29 @@ public final class DeviceUtils {
         return NetworkType.NONE;
     }
 
+    /**
+     * Available network types
+     */
     public enum NetworkType {
+        /**
+         * Mobile 2G network
+         */
         MOBILE_2G("2g"),
+        /**
+         * Mobile 3G network
+         */
         MOBILE_3G("3g"),
+        /**
+         * Mobile LTE network
+         */
         MOBILE_LTE("lte"),
+        /**
+         * Wi-Fi network
+         */
         WI_FI("Wi-Fi"),
+        /**
+         * No network
+         */
         NONE("none");
 
         @NonNull
@@ -143,6 +170,9 @@ public final class DeviceUtils {
             this.name = name;
         }
 
+        /**
+         * @return Network type readable name
+         */
         @NonNull
         public String getName() {
             return name;
