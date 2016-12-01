@@ -261,7 +261,7 @@ public final class CalendarUtils {
         final int firstDayInNextMonth = nextMonthFirstDay.getDayOfWeek() - 1;
         calendarItems.add(new CalendarEmptyItem(shift + 1, shift + (7 - firstDayInNextMonth)));
         shift += 7 - firstDayInNextMonth + 1;
-        calendarItems.add(new CalendarHeaderItem(nextMonthFirstDay.getMonthOfYear() + 1, shift, shift));
+        calendarItems.add(new CalendarHeaderItem(nextMonthFirstDay.getMonthOfYear() - 1, shift, shift));
         shift += 1;
         calendarItems.add(new CalendarEmptyItem(shift, shift + firstDayInNextMonth - 1));
     }
