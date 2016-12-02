@@ -37,7 +37,7 @@ import javax.net.ssl.SSLException;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okhttp3.internal.framed.StreamResetException;
+import okhttp3.internal.http2.StreamResetException;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import ru.touchin.roboswag.core.log.Lc;

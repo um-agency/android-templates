@@ -31,7 +31,7 @@ dependencies {
     provided 'com.android.support:recyclerview-v7:24.2.1'
 
     provided 'com.squareup.retrofit2:retrofit:2.1.0'
-    provided 'com.squareup.okhttp3:okhttp:3.4.1'
+    provided 'com.squareup.okhttp3:okhttp:3.5.0'
     provided('com.google.http-client:google-http-client-jackson2:1.22.0') {
         exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
     }
