@@ -174,10 +174,14 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
      * Bind data to a Header ViewHolder.
      *
      * @param viewHolder ViewHolder for binding;
+     * @param year       year;
      * @param monthName  Name of month;
      * @param firstMonth True if bind called for the first month in calendar.
      */
-    protected abstract void bindHeaderItem(@NonNull final THeaderViewHolder viewHolder, @NonNull final String monthName, final boolean firstMonth);
+    protected abstract void bindHeaderItem(@NonNull final THeaderViewHolder viewHolder,
+                                           final int year,
+                                           @NonNull final String monthName,
+                                           final boolean firstMonth);
 
     /**
      * Bind data to an Empty ViewHolder.
@@ -212,9 +216,10 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
                     new StaggeredGridLayoutManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             layoutParams.setFullSpan(true);
             holder.itemView.setLayoutParams(layoutParams);
-            final String monthName = monthsNames != null ? monthsNames[((CalendarHeaderItem) calendarItem).getMonth()]
-                    : String.valueOf(((CalendarHeaderItem) calendarItem).getMonth());
-            bindHeaderItem((THeaderViewHolder) holder, monthName, position == 0);
+            final CalendarHeaderItem calendarHeaderItem = (CalendarHeaderItem) calendarItem;
+            final String monthName = monthsNames != null ? monthsNames[calendarHeaderItem.getMonth()]
+                    : String.valueOf(calendarHeaderItem.getMonth());
+            bindHeaderItem((THeaderViewHolder) holder, calendarHeaderItem.getYear(), monthName, position == 0);
         } else if (calendarItem instanceof CalendarEmptyItem) {
             if (startSelectionPosition != null && endSelectionPosition != null
                     && position >= startSelectionPosition && position <= endSelectionPosition) {

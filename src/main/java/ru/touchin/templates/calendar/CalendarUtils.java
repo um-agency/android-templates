@@ -59,7 +59,7 @@ public final class CalendarUtils {
      * @param calendarItems List of {@link CalendarItem} where need to find specific element;
      * @param position      Position of adapter;
      * @return Position of Header that respond to requested position.
-     *         Returns null if Header or related CalendarItem was not found for specified position.
+     *     Returns null if Header or related CalendarItem was not found for specified position.
      */
     @Nullable
     public static Integer findPositionOfSelectedMonth(@NonNull final List<CalendarItem> calendarItems, final long position) {
@@ -76,7 +76,7 @@ public final class CalendarUtils {
      * @param calendarItems List of {@link CalendarItem} where need to find specific element;
      * @param date          Requested date in milliseconds.
      * @return Position of Calendar cell that that has specific date.
-     *         Returns null if CalendarItem was not found for specified position.
+     *     Returns null if CalendarItem was not found for specified position.
      */
     @Nullable
     public static Integer findPositionByDate(@NonNull final List<CalendarItem> calendarItems, final long date) {
@@ -162,7 +162,7 @@ public final class CalendarUtils {
                     shift += (DAYS_IN_WEEK - firstDayInWeek);
                 }
 
-                calendarItems.add(new CalendarHeaderItem(tempTime.getMonthOfYear() - 1, shift + daysEnded, shift + daysEnded));
+                calendarItems.add(new CalendarHeaderItem(tempTime.getYear(), tempTime.getMonthOfYear() - 1, shift + daysEnded, shift + daysEnded));
                 shift += 1;
 
                 if (firstDayInWeek != 0) {
@@ -225,7 +225,8 @@ public final class CalendarUtils {
         final int firstDate = temp.getDayOfMonth() - 1; //?? - 1 ?
 
         // add first month header
-        calendarItems.add(new CalendarHeaderItem(temp.get(DateTimeFieldType.monthOfYear()) - 1, shift, shift)); // is Month starts from 1 or 0 ?
+        calendarItems.add(new CalendarHeaderItem(temp.getYear(),
+                temp.get(DateTimeFieldType.monthOfYear()) - 1, shift, shift)); // is Month starts from 1 or 0 ?
         temp = temp.withDayOfMonth(1);
         shift += 1;
 
@@ -261,7 +262,7 @@ public final class CalendarUtils {
         final int firstDayInNextMonth = nextMonthFirstDay.getDayOfWeek() - 1;
         calendarItems.add(new CalendarEmptyItem(shift + 1, shift + (7 - firstDayInNextMonth)));
         shift += 7 - firstDayInNextMonth + 1;
-        calendarItems.add(new CalendarHeaderItem(nextMonthFirstDay.getMonthOfYear() - 1, shift, shift));
+        calendarItems.add(new CalendarHeaderItem(nextMonthFirstDay.getYear(), nextMonthFirstDay.getMonthOfYear() - 1, shift, shift));
         shift += 1;
         calendarItems.add(new CalendarEmptyItem(shift, shift + firstDayInNextMonth - 1));
     }
