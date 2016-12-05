@@ -174,6 +174,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
      * Bind data to a Header ViewHolder.
      *
      * @param viewHolder ViewHolder for binding;
+     * @param year       year;
      * @param monthName  Name of month;
      * @param firstMonth True if bind called for the first month in calendar.
      */

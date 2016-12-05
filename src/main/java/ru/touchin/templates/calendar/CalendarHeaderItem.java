@@ -37,6 +37,11 @@ public class CalendarHeaderItem implements CalendarItem {
         this.endRange = endRange;
     }
 
+    /**
+     * Returns year.
+     *
+     * @return year.
+     */
     public int getYear() {
         return year;
     }
