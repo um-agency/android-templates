@@ -37,7 +37,7 @@ import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 
 /**
  * Created by Gavriil Sitnikov on 23/08/2016.
- * Utility class to get {@link Storable} that is storing Google Json generated object into prefernces.
+ * Utility class to get {@link Storable} that is storing Google Json generated object into preferences.
  */
 public final class GoogleJsonPreferences {
 
@@ -45,7 +45,7 @@ public final class GoogleJsonPreferences {
     public static <T> SafeStorable<String, T, String> jsonStorable(@NonNull final String name,
                                                                    @NonNull final Class<T> jsonClass,
                                                                    @NonNull final SharedPreferences preferences) {
-        return new Storable.Builder<String, T, String>(name, jsonClass, Storable.ObserveStrategy.CACHE_STORE_VALUE)
+        return new Storable.Builder<String, T, String>(name, jsonClass, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
                 .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonConverter<>())
                 .build();
     }
