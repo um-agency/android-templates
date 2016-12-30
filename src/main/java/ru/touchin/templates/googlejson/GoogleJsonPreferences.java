@@ -54,7 +54,7 @@ public final class GoogleJsonPreferences {
     public static <T> NonNullSafeStorable<String, T, String> jsonStorable(@NonNull final String name,
                                                                           @NonNull final Class<T> jsonClass,
                                                                           @NonNull final SharedPreferences preferences,
-                                                                          final T defaultValue) {
+                                                                          @NonNull final T defaultValue) {
         return new Storable.Builder<String, T, String>(name, jsonClass, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
                 .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonConverter<>())
                 .setDefaultValue(defaultValue)
