@@ -22,6 +22,7 @@ package ru.touchin.templates;
 import android.app.Application;
 import android.content.Context;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
@@ -83,6 +84,7 @@ public abstract class TouchinApp extends Application {
         });
         JodaTimeAndroid.init(this);
         if (isDebug()) {
+            enableStrictMode();
             ViewControllerFragment.setInDebugMode();
             TypefacedEditText.setInDebugMode();
             TypefacedTextView.setInDebugMode();
@@ -92,6 +94,17 @@ public abstract class TouchinApp extends Application {
             Fabric.with(this, crashlytics);
             Lc.initialize(new CrashlyticsLogProcessor(crashlytics), false);
         }
+    }
+
+    private void enableStrictMode() {
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .build());
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .build());
     }
 
     private static class CrashlyticsLogProcessor extends LogProcessor {
