@@ -180,6 +180,16 @@ public final class DeviceUtils {
 
     }
 
+    /**
+     * Detects if some network connected.
+     *
+     * @param context Application context
+     * @return true if network connected, false otherwise.
+     */
+    public static boolean isNetworkConnected(@NonNull final Context context) {
+        return getNetworkType(context) != NetworkType.NONE;
+    }
+
     private DeviceUtils() {
     }
 
