@@ -26,6 +26,7 @@ import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
 import ru.touchin.roboswag.components.navigation.fragments.ViewControllerFragment;
+import ru.touchin.roboswag.components.utils.UiUtils;
 import ru.touchin.roboswag.components.views.TypefacedEditText;
 import ru.touchin.roboswag.components.views.TypefacedTextView;
 import ru.touchin.roboswag.core.log.ConsoleLogProcessor;
@@ -115,7 +117,7 @@ public abstract class TouchinApp extends Application {
         private final Crashlytics crashlytics;
 
         public CrashlyticsLogProcessor(@NonNull final Crashlytics crashlytics) {
-            super(LcLevel.ASSERT);
+            super(LcLevel.INFO);
             this.crashlytics = crashlytics;
         }
 
@@ -125,9 +127,12 @@ public abstract class TouchinApp extends Application {
                                       @NonNull final String tag,
                                       @NonNull final String message,
                                       @Nullable final Throwable throwable) {
-            if (!level.lessThan(LcLevel.ASSERT)) {
+            if (group == UiUtils.UI_LIFECYCLE_LC_GROUP) {
+                crashlytics.core.log(level.getPriority(), tag, message);
+            } else if (!level.lessThan(LcLevel.ASSERT)) {
+                Log.e(tag, message);
                 if (throwable != null) {
-                    crashlytics.core.log(tag + ':' + message);
+                    crashlytics.core.log(Log.ASSERT, tag, message);
                     crashlytics.core.logException(throwable);
                 } else {
                     crashlytics.core.logException(new ShouldNotHappenException(tag + ':' + message));

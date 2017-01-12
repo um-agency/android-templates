@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 
 import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
 import ru.touchin.roboswag.components.utils.Logic;
+import ru.touchin.roboswag.components.utils.UiUtils;
 import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.utils.ServiceBinder;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
@@ -66,6 +67,7 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        UiUtils.UI_LIFECYCLE_LC_GROUP.i(Lc.getCodePoint(this));
         postHandler.post(() -> isCreatedSubject.onNext(true));
     }
 
@@ -178,12 +180,19 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
     //CPD: it is same as in other implementation based on BaseLifecycleBindable
     @NonNull
     @Override
-    public IBinder onBind(final Intent intent) {
+    public IBinder onBind(@NonNull final Intent intent) {
         return new ServiceBinder<>(this);
     }
 
     @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        UiUtils.UI_LIFECYCLE_LC_GROUP.i(Lc.getCodePoint(this));
+    }
+
+    @Override
     public void onDestroy() {
+        UiUtils.UI_LIFECYCLE_LC_GROUP.i(Lc.getCodePoint(this));
         postHandler.removeCallbacksAndMessages(null);
         isCreatedSubject.onNext(false);
         super.onDestroy();
