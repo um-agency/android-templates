@@ -27,11 +27,15 @@ import com.google.api.client.http.json.JsonHttpContent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import ru.touchin.roboswag.components.utils.storables.PreferenceStore;
 import ru.touchin.roboswag.core.observables.storable.SafeConverter;
 import ru.touchin.roboswag.core.observables.storable.Storable;
+import ru.touchin.roboswag.core.observables.storable.concrete.NonNullSafeListStorable;
 import ru.touchin.roboswag.core.observables.storable.concrete.NonNullSafeStorable;
+import ru.touchin.roboswag.core.observables.storable.concrete.SafeListStorable;
 import ru.touchin.roboswag.core.observables.storable.concrete.SafeStorable;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 
@@ -59,6 +63,26 @@ public final class GoogleJsonPreferences {
                 .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonConverter<>())
                 .setDefaultValue(defaultValue)
                 .build();
+    }
+
+    @NonNull
+    public static <T> SafeListStorable<String, T, String> jsonListStorable(@NonNull final String name,
+                                                                           @NonNull final Class<T> jsonClass,
+                                                                           @NonNull final SharedPreferences preferences) {
+        return new SafeListStorable<>(new Storable.Builder<String, List, String>(name, List.class, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
+                .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonListConverter<>(jsonClass))
+                .build());
+    }
+
+    @NonNull
+    public static <T> NonNullSafeListStorable<String, T, String> jsonListStorable(@NonNull final String name,
+                                                                                  @NonNull final Class<T> jsonClass,
+                                                                                  @NonNull final SharedPreferences preferences,
+                                                                                  @NonNull final List<T> defaultValue) {
+        return new NonNullSafeListStorable<>(new Storable.Builder<String, List, String>(name, List.class, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
+                .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonListConverter<>(jsonClass))
+                .setDefaultValue(defaultValue)
+                .build());
     }
 
     private GoogleJsonPreferences() {
@@ -92,6 +116,33 @@ public final class GoogleJsonPreferences {
             }
             try {
                 return GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(storeValue).parse(jsonObjectClass);
+            } catch (final IOException exception) {
+                throw new ShouldNotHappenException(exception);
+            }
+        }
+
+    }
+
+    public static class JsonListConverter<T> extends JsonConverter<List> {
+
+        @NonNull
+        private final Class<T> itemClass;
+
+        public JsonListConverter(@NonNull final Class<T> itemClass) {
+            super();
+            this.itemClass = itemClass;
+        }
+
+        @Nullable
+        @Override
+        @SuppressWarnings("unchecked")
+        public List toObject(@NonNull final Class<List> jsonObjectClass, @NonNull final Class<String> stringClass,
+                             @Nullable final String storeValue) {
+            if (storeValue == null) {
+                return null;
+            }
+            try {
+                return (List) GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(storeValue).parseArray(ArrayList.class, itemClass);
             } catch (final IOException exception) {
                 throw new ShouldNotHappenException(exception);
             }
