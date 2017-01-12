@@ -99,6 +99,8 @@ public abstract class TouchinApp extends Application {
     private void enableStrictMode() {
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                 .detectAll()
+                .permitDiskReads()
+                .permitDiskWrites()
                 .penaltyLog()
                 .build());
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
