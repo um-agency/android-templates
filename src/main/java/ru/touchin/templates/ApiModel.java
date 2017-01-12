@@ -63,14 +63,14 @@ public abstract class ApiModel {
                         throw exception;
                     case EXCEPTION_IF_ALL_INVALID:
                         iterator.remove();
-                        Lc.e(exception, "Item %s is invalid", position);
+                        Lc.e(exception, "Item %s is invalid at " + Lc.getCodePoint(null, 1), position);
                         if (!iterator.hasNext() && !haveValidItem) {
-                            throw new ValidationException("Whole list is invalid");
+                            throw new ValidationException("Whole list is invalid at " + Lc.getCodePoint(null, 1));
                         }
                         break;
                     case REMOVE_INVALID_ITEMS:
                         iterator.remove();
-                        Lc.e(exception, "Item %s is invalid", position);
+                        Lc.e(exception, "Item %s is invalid at " + Lc.getCodePoint(null, 1), position);
                         break;
                     default:
                         Lc.assertion("Unexpected rule " + collectionValidationRule);

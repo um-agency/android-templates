@@ -25,6 +25,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.Data;
 
+import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.templates.ApiModel;
 
 /**
@@ -78,7 +79,7 @@ public abstract class GoogleJsonModel extends ApiModel {
      */
     protected static void validateNotNull(@Nullable final Object object) throws ValidationException {
         if (isNullOrMissed(object)) {
-            throw new ValidationException("Not nullable object is null or missed");
+            throw new ValidationException("Not nullable object is null or missed at " + Lc.getCodePoint(null, 1));
         }
     }
 
@@ -90,7 +91,7 @@ public abstract class GoogleJsonModel extends ApiModel {
      */
     protected static void validateNotMissed(@Nullable final Object object) throws ValidationException {
         if (isMissed(object)) {
-            throw new ValidationException("Object missed");
+            throw new ValidationException("Object missed at " + Lc.getCodePoint(null, 1));
         }
     }
 
@@ -102,7 +103,7 @@ public abstract class GoogleJsonModel extends ApiModel {
      */
     protected static void validateMissedOrNotNull(@Nullable final Object object) throws ValidationException {
         if (isNull(object)) {
-            throw new ValidationException("Not null or not missed object is null");
+            throw new ValidationException("Not null or not missed object is null at " + Lc.getCodePoint(null, 1));
         }
     }
 
