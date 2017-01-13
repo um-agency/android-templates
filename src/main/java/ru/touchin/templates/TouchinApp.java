@@ -32,6 +32,8 @@ import com.crashlytics.android.Crashlytics;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
@@ -129,15 +131,34 @@ public abstract class TouchinApp extends Application {
                                       @Nullable final Throwable throwable) {
             if (group == UiUtils.UI_LIFECYCLE_LC_GROUP) {
                 crashlytics.core.log(level.getPriority(), tag, message);
-            } else if (!level.lessThan(LcLevel.ASSERT)) {
+            } else if (!level.lessThan(LcLevel.ASSERT)
+                    || (group == ApiModel.API_VALIDATION_LC_GROUP && level == LcLevel.ERROR)) {
                 Log.e(tag, message);
                 if (throwable != null) {
-                    crashlytics.core.log(Log.ASSERT, tag, message);
+                    crashlytics.core.log(level.getPriority(), tag, message);
                     crashlytics.core.logException(throwable);
                 } else {
-                    crashlytics.core.logException(new ShouldNotHappenException(tag + ':' + message));
+                    final ShouldNotHappenException exceptionToLog = new ShouldNotHappenException(tag + ':' + message);
+                    reduceStackTrace(exceptionToLog);
+                    crashlytics.core.logException(exceptionToLog);
                 }
             }
+        }
+
+        private void reduceStackTrace(@NonNull final Throwable throwable) {
+            final StackTraceElement[] stackTrace = throwable.getStackTrace();
+            final List<StackTraceElement> reducedStackTraceList = new ArrayList<>();
+            for (int i = stackTrace.length - 1; i >= 0; i--) {
+                final StackTraceElement stackTraceElement = stackTrace[i];
+                if (stackTraceElement.getClassName().contains(getClass().getSimpleName())
+                        || stackTraceElement.getClassName().contains(LcGroup.class.getName())
+                        || stackTraceElement.getClassName().contains(Lc.class.getName())) {
+                    break;
+                }
+                reducedStackTraceList.add(stackTraceElement);
+            }
+            final StackTraceElement[] reducedStackTrace = new StackTraceElement[reducedStackTraceList.size()];
+            throwable.setStackTrace(reducedStackTraceList.toArray(reducedStackTrace));
         }
 
     }

@@ -27,12 +27,18 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import ru.touchin.roboswag.core.log.Lc;
+import ru.touchin.roboswag.core.log.LcGroup;
 
 /**
  * Created by Gavriil Sitnikov on 11/08/2016.
  * Just model from getting from API.
  */
 public abstract class ApiModel {
+
+    /**
+     * Logging group to log API validation errors.
+     */
+    public static final LcGroup API_VALIDATION_LC_GROUP = new LcGroup("API_VALIDATION");
 
     /**
      * Validates list of objects. Use it if objects in list extends {@link ApiModel}.
@@ -63,14 +69,14 @@ public abstract class ApiModel {
                         throw exception;
                     case EXCEPTION_IF_ALL_INVALID:
                         iterator.remove();
-                        Lc.e(exception, "Item %s is invalid at " + Lc.getCodePoint(null, 1), position);
+                        API_VALIDATION_LC_GROUP.e(exception, "Item %s is invalid at " + Lc.getCodePoint(null, 1), position);
                         if (!iterator.hasNext() && !haveValidItem) {
                             throw new ValidationException("Whole list is invalid at " + Lc.getCodePoint(null, 1));
                         }
                         break;
                     case REMOVE_INVALID_ITEMS:
                         iterator.remove();
-                        Lc.e(exception, "Item %s is invalid at " + Lc.getCodePoint(null, 1), position);
+                        API_VALIDATION_LC_GROUP.e(exception, "Item %s is invalid at " + Lc.getCodePoint(null, 1), position);
                         break;
                     default:
                         Lc.assertion("Unexpected rule " + collectionValidationRule);
@@ -78,6 +84,19 @@ public abstract class ApiModel {
                 }
             }
             position++;
+        }
+    }
+
+    /**
+     * Validates collection on emptiness.
+     *
+     * @param collection Collection to check;
+     * @throws ValidationException Exception of validation.
+     */
+    protected static void validateCollectionNotEmpty(@NonNull final Collection collection)
+            throws ValidationException {
+        if (collection.isEmpty()) {
+            throw new ValidationException("List is empty at " + Lc.getCodePoint(null, 1));
         }
     }
 
