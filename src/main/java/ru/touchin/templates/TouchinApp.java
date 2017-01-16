@@ -93,6 +93,7 @@ public abstract class TouchinApp extends Application {
             TypefacedEditText.setInDebugMode();
             TypefacedTextView.setInDebugMode();
             Lc.initialize(new ConsoleLogProcessor(LcLevel.VERBOSE), true);
+            UiUtils.UI_LIFECYCLE_LC_GROUP.disable();
         } else {
             final Crashlytics crashlytics = new Crashlytics();
             Fabric.with(this, crashlytics);
