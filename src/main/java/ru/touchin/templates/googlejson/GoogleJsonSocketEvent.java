@@ -43,8 +43,8 @@ public class GoogleJsonSocketEvent<TMessage> extends SocketEvent<TMessage> {
 
     @NonNull
     @Override
-    public TMessage parse(@NonNull final String source) throws IOException {
-        final TMessage message = GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(source).parseAndClose(getMessageClass());
+    public TMessage parse(@NonNull final byte[] data) throws IOException {
+        final TMessage message = GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(new String(data, "UTF-8")).parseAndClose(getMessageClass());
         if (message instanceof ApiModel) {
             ((ApiModel) message).validate();
         }

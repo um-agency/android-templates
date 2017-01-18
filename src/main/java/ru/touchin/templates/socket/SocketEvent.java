@@ -79,12 +79,12 @@ public abstract class SocketEvent<TMessage> {
     /**
      * Parses input string to message.
      *
-     * @param source Input string;
+     * @param data Input bytes;
      * @return Message object;
      * @throws IOException Exception during parsing.
      */
     @NonNull
-    public abstract TMessage parse(@NonNull final String source) throws IOException;
+    public abstract TMessage parse(@NonNull final byte[] data) throws IOException;
 
     @Override
     public boolean equals(final Object object) {
