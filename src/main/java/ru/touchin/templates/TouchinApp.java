@@ -97,6 +97,7 @@ public abstract class TouchinApp extends Application {
         } else {
             final Crashlytics crashlytics = new Crashlytics();
             Fabric.with(this, crashlytics);
+            Fabric.getLogger().setLogLevel(Log.ERROR);
             Lc.initialize(new CrashlyticsLogProcessor(crashlytics), false);
         }
     }
@@ -156,10 +157,11 @@ public abstract class TouchinApp extends Application {
                         || stackTraceElement.getClassName().contains(Lc.class.getName())) {
                     break;
                 }
-                reducedStackTraceList.add(stackTraceElement);
+                reducedStackTraceList.add(0, stackTraceElement);
             }
-            final StackTraceElement[] reducedStackTrace = new StackTraceElement[reducedStackTraceList.size()];
-            throwable.setStackTrace(reducedStackTraceList.toArray(reducedStackTrace));
+            StackTraceElement[] reducedStackTrace = new StackTraceElement[reducedStackTraceList.size()];
+            reducedStackTrace = reducedStackTraceList.toArray(reducedStackTrace);
+            throwable.setStackTrace(reducedStackTrace);
         }
 
     }
