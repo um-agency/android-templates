@@ -25,18 +25,18 @@ import android.support.annotation.NonNull;
  * Created by Ilia Kurtov on 24/01/2017.
  * TODO: fill
  */
-public abstract class ValidationController<TWrapper extends Validator> {
+public abstract class ValidationController<TValidator extends Validator> {
 
     @NonNull
-    private final TWrapper validationWrapper;
+    private final TValidator validator;
 
-    public ValidationController(@NonNull final TWrapper validationWrapper) {
-        this.validationWrapper = validationWrapper;
+    public ValidationController(@NonNull final TValidator validator) {
+        this.validator = validator;
     }
 
     @NonNull
-    public TWrapper getValidationWrapper() {
-        return validationWrapper;
+    public TValidator getValidator() {
+        return validator;
     }
 
 }

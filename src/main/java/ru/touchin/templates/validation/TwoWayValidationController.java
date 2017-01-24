@@ -33,11 +33,11 @@ import rx.functions.Action1;
  * TODO: fill
  */
 public abstract class TwoWayValidationController
-        <TWrapperModel extends Serializable, TModel extends Serializable, TValidationWrapper extends Validator<TWrapperModel, TModel>>
-        extends ValidationController<TValidationWrapper> {
+        <TWrapperModel extends Serializable, TModel extends Serializable, TValidator extends Validator<TWrapperModel, TModel>>
+        extends ValidationController<TValidator> {
 
-    public TwoWayValidationController(@NonNull final TValidationWrapper validationWrapper) {
-        super(validationWrapper);
+    public TwoWayValidationController(@NonNull final TValidator validator) {
+        super(validator);
     }
 
     @NonNull
@@ -45,13 +45,13 @@ public abstract class TwoWayValidationController
                                               @NonNull final Action1<TWrapperModel> updateViewAction,
                                               @NonNull final ViewWithError viewWithError) {
         final Observable<?> stateObservable = viewStateObservable != null
-                ? viewStateObservable.doOnNext(flag -> getValidationWrapper().getWrapperModel().set(flag))
+                ? viewStateObservable.doOnNext(flag -> getValidator().getWrapperModel().set(flag))
                 : Observable.empty();
         return Observable
-                .merge(getValidationWrapper().getWrapperModel().observe()
+                .merge(getValidator().getWrapperModel().observe()
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .doOnNext(updateViewAction),
-                        getValidationWrapper().getValidationState().observe()
+                        getValidator().getValidationState().observe()
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .doOnNext(validationState -> {
                                     if (!showError(validationState)) {
