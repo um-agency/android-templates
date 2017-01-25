@@ -42,9 +42,9 @@ public class EditTextValidationController<TModel extends Serializable>
     public Observable<?> validation(@NonNull final Observable<Boolean> focusOutObservable, @NonNull final Observable<Boolean> activatedObservable) {
         return Observable
                 .<Boolean, String, Boolean, Boolean, NonNullPair<Boolean, Observable<ValidationState>>>combineLatest(activatedObservable,
-                        getValidationWrapper().getWrapperModel().observe(),
+                        getValidator().getWrapperModel().observe(),
                         focusOutObservable,
-                        getValidationWrapper().getShowFullCheck().observe(),
+                        getValidator().getShowFullCheck().observe(),
                         (activated, text, focusIn, showError) -> {
                             if (focusIn == null && TextUtils.isEmpty(text) && !activated && !showError) {
                                 return null;
@@ -52,14 +52,13 @@ public class EditTextValidationController<TModel extends Serializable>
                             final boolean focus = focusIn == null ? false : focusIn;
                             if (TextUtils.isEmpty(text)) {
                                 return new NonNullPair<>(focus, (activated || showError)
-                                        ? getValidationWrapper().getValidationStateWhenEmpty().observe()
-                                        .map(state -> state != null ? state : ValidationState.ERROR_NO_DESCRIPTION)
+                                        ? getValidator().getValidationStateWhenEmpty().observe()
                                         : Observable.just(ValidationState.INITIAL));
                             }
                             if (!showError && focus) {
-                                return new NonNullPair<>(true, getValidationWrapper().primaryValidate(text));
+                                return new NonNullPair<>(true, getValidator().primaryValidate(text));
                             }
-                            return new NonNullPair<>(focus, getValidationWrapper().fullValidate(text));
+                            return new NonNullPair<>(focus, getValidator().fullValidate(text));
                         })
                 .switchMap(validationPair -> {
                     if (validationPair == null) {
@@ -68,9 +67,9 @@ public class EditTextValidationController<TModel extends Serializable>
                     return validationPair.getSecond()
                             .doOnNext(validationState -> {
                                 if (!validationPair.getFirst()) {
-                                    getValidationWrapper().getShowFullCheck().set(validationState != ValidationState.VALID);
+                                    getValidator().getShowFullCheck().set(validationState != ValidationState.VALID);
                                 }
-                                getValidationWrapper().getValidationState().set(validationState);
+                                getValidator().getValidationState().set(validationState);
                             });
                 });
     }

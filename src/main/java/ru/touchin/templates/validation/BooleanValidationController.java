@@ -35,7 +35,7 @@ public class BooleanValidationController extends TwoWayValidationController<Bool
 
     @NonNull
     public Observable<?> validation(@NonNull final Observable<Boolean> activatedObservable) {
-        return Observable.combineLatest(activatedObservable, getValidationWrapper().getWrapperModel().observe(),
+        return Observable.combineLatest(activatedObservable, getValidator().getWrapperModel().observe(),
                 (activated, flag) -> {
                     final boolean selected = flag == null ? false : flag;
                     if (activated && !selected) {
@@ -45,7 +45,7 @@ public class BooleanValidationController extends TwoWayValidationController<Bool
                     }
                     return ValidationState.VALID;
                 })
-                .doOnNext(validationState -> getValidationWrapper().getValidationState().set(validationState));
+                .doOnNext(validationState -> getValidator().getValidationState().set(validationState));
     }
 
 }

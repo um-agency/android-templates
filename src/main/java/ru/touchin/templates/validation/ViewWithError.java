@@ -29,6 +29,6 @@ public interface ViewWithError {
 
     void hideError();
 
-    void showError(@NonNull ValidationState validationState);
+    void showError(@NonNull final ValidationState validationState);
 
 }
