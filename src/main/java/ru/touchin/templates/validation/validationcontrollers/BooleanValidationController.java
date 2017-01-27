@@ -17,10 +17,12 @@
  *
  */
 
-package ru.touchin.templates.validation;
+package ru.touchin.templates.validation.validationcontrollers;
 
 import android.support.annotation.NonNull;
 
+import ru.touchin.templates.validation.ValidationState;
+import ru.touchin.templates.validation.validators.SameTypeValidator;
 import rx.Observable;
 
 /**
@@ -29,8 +31,8 @@ import rx.Observable;
  */
 public class BooleanValidationController extends TwoWayValidationController<Boolean, Boolean, SameTypeValidator<Boolean>> {
 
-    public BooleanValidationController(@NonNull final SameTypeValidator<Boolean> validationWrapper) {
-        super(validationWrapper);
+    public BooleanValidationController(@NonNull final SameTypeValidator<Boolean> validator) {
+        super(validator);
     }
 
     @NonNull

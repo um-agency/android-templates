@@ -33,18 +33,40 @@ public class ValidationState implements Serializable {
     /**
      * Initial state of validation. It indicates that no validation rules applied yet.
      */
-    public static final ValidationState INITIAL = new ValidationState();
+    public static final ValidationState INITIAL = new ValidationState(-1);
     /**
      * Valid state.
      */
-    public static final ValidationState VALID = new ValidationState();
+    public static final ValidationState VALID = new ValidationState(-2);
     /**
      * Error shows when model (e.g. DateTime) is failing on conversion from raw data (e.g. from String) for validation.
      */
-    public static final ValidationState ERROR_CONVERSION = new ValidationState();
+    public static final ValidationState ERROR_CONVERSION = new ValidationState(-3);
     /**
      * Error shows when we don't need to show any description of error (e.g. just highlight input field with red color).
      */
-    public static final ValidationState ERROR_NO_DESCRIPTION = new ValidationState();
+    public static final ValidationState ERROR_NO_DESCRIPTION = new ValidationState(-4);
+
+    private final int code;
+
+    public ValidationState(final int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        return this == object
+                || !(object == null || getClass() != object.getClass()) && code == ((ValidationState) object).code;
+    }
+
+    @Override
+    public int hashCode() {
+        //TODO
+        return super.hashCode();
+    }
 
 }

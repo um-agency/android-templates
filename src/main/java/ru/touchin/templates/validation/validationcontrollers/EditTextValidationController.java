@@ -17,7 +17,7 @@
  *
  */
 
-package ru.touchin.templates.validation;
+package ru.touchin.templates.validation.validationcontrollers;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -25,6 +25,8 @@ import android.text.TextUtils;
 import java.io.Serializable;
 
 import ru.touchin.roboswag.core.utils.pairs.NonNullPair;
+import ru.touchin.templates.validation.ValidationState;
+import ru.touchin.templates.validation.validators.EditTextValidator;
 import rx.Observable;
 
 /**

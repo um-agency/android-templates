@@ -17,7 +17,7 @@
  *
  */
 
-package ru.touchin.templates.validation;
+package ru.touchin.templates.validation.validators;
 
 import android.support.annotation.NonNull;
 
@@ -25,6 +25,8 @@ import java.io.Serializable;
 
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
+import ru.touchin.templates.validation.ConversionException;
+import ru.touchin.templates.validation.ValidationState;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.

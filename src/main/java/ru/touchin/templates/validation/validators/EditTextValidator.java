@@ -17,7 +17,7 @@
  *
  */
 
-package ru.touchin.templates.validation;
+package ru.touchin.templates.validation.validators;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,6 +28,8 @@ import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
 import ru.touchin.roboswag.core.utils.pairs.HalfNullablePair;
+import ru.touchin.templates.validation.ConversionException;
+import ru.touchin.templates.validation.ValidationState;
 import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
@@ -51,12 +53,12 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
         return showFullCheck;
     }
 
-    @Nullable
+    @NonNull
     public Changeable<Func1<TModel, HalfNullablePair<ValidationState, TModel>>> getFinalCheck() {
         return finalCheck;
     }
 
-    @Nullable
+    @NonNull
     public Changeable<Func1<String, HalfNullablePair<ValidationState, TModel>>> getPrimaryCheck() {
         return primaryCheck;
     }

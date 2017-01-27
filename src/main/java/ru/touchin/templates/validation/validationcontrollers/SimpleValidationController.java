@@ -1,9 +1,11 @@
-package ru.touchin.templates.validation;
+package ru.touchin.templates.validation.validationcontrollers;
 
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 
+import ru.touchin.templates.validation.ValidationState;
+import ru.touchin.templates.validation.validators.Validator;
 import rx.Observable;
 
 public class SimpleValidationController<TModel extends Serializable, TValidator extends Validator<TModel, TModel>>
