@@ -19,13 +19,15 @@
 
 package ru.touchin.templates.validation;
 
+import android.support.annotation.Nullable;
+
 /**
  * Created by Ilia Kurtov on 24/01/2017.
  * TODO: fill
  */
 public class ConversionException extends Exception {
 
-    public ConversionException(final Throwable cause) {
+    public ConversionException(@Nullable final Throwable cause) {
         super(cause);
     }
 
