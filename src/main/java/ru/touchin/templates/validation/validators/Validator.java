@@ -25,7 +25,6 @@ import java.io.Serializable;
 
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
-import ru.touchin.templates.validation.ConversionException;
 import ru.touchin.templates.validation.ValidationState;
 
 /**

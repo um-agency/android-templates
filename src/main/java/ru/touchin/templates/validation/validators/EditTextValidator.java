@@ -24,15 +24,12 @@ import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 
-import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
 import ru.touchin.roboswag.core.utils.pairs.HalfNullablePair;
-import ru.touchin.templates.validation.ConversionException;
 import ru.touchin.templates.validation.ValidationFunc;
 import ru.touchin.templates.validation.ValidationState;
 import rx.Observable;
-import rx.exceptions.OnErrorThrowable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -83,6 +80,8 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
     }
 
     @NonNull
+    @SuppressWarnings("PMD.AvoidCatchingThrowable")
+    // It's intended
     private Observable<HalfNullablePair<ValidationState, TModel>> createValidationObservable(@NonNull final String text, final boolean fullCheck) {
         return Observable
                 .combineLatest(finalCheck.observe().observeOn(Schedulers.computation()),
