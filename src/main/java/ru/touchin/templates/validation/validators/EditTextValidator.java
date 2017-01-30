@@ -33,7 +33,6 @@ import ru.touchin.templates.validation.ValidationFunc;
 import ru.touchin.templates.validation.ValidationState;
 import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**

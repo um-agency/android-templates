@@ -24,4 +24,9 @@ package ru.touchin.templates.validation;
  * TODO: fill
  */
 public class ConversionException extends Exception {
+
+    public ConversionException(final Throwable cause) {
+        super(cause);
+    }
+
 }
