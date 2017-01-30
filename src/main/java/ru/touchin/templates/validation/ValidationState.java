@@ -65,8 +65,7 @@ public class ValidationState implements Serializable {
 
     @Override
     public int hashCode() {
-        //TODO
-        return super.hashCode();
+        return 31 * code;
     }
 
 }

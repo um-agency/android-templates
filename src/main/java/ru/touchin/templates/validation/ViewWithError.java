@@ -19,6 +19,8 @@
 
 package ru.touchin.templates.validation;
 
+import android.support.annotation.NonNull;
+
 /**
  * Created by Ilia Kurtov on 24/01/2017.
  * TODO: fill
@@ -27,6 +29,6 @@ public interface ViewWithError {
 
     void hideError();
 
-    void showError();
+    void showError(@NonNull final ValidationState validationState);
 
 }

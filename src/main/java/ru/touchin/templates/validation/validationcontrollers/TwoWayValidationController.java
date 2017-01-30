@@ -67,7 +67,7 @@ public abstract class TwoWayValidationController
     }
 
     protected boolean showError(@NonNull final ValidationState validationState) {
-        return validationState != ValidationState.VALID && validationState != ValidationState.INITIAL;
+        return !validationState.equals(ValidationState.VALID) && !validationState.equals(ValidationState.INITIAL);
     }
 
 }
