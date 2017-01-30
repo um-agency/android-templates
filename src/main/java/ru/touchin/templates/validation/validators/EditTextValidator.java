@@ -68,11 +68,10 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
             @Nullable final ValidationFunc<TModel, HalfNullablePair<ValidationState, TModel>> finalCheck,
             @Nullable final ValidationFunc<String, HalfNullablePair<ValidationState, TModel>> primaryCheck,
             @NonNull final String text, final boolean fullCheck)
-            throws ConversionException {
+            throws Throwable {
         if (primaryCheck == null && finalCheck == null) {
             return new HalfNullablePair<>(ValidationState.VALID, convertWrapperModelToModel(text));
         }
-
         if (primaryCheck != null) {
             final HalfNullablePair<ValidationState, TModel> primaryPair = primaryCheck.call(text);
             if (finalCheck == null || primaryPair.getFirst() != ValidationState.VALID || primaryPair.getSecond() == null || !fullCheck) {
@@ -91,8 +90,8 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
                         (finalCheck, primaryCheck) -> {
                             try {
                                 return validateText(finalCheck, primaryCheck, text, fullCheck);
-                            } catch (final ConversionException exception) {
-                                throw OnErrorThrowable.from(exception);
+                            } catch (final Throwable exception) {
+                                return new HalfNullablePair<>(ValidationState.ERROR_CONVERSION, null);
                             }
                         });
     }
@@ -100,14 +99,7 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
     @NonNull
     private Observable<ValidationState> processChecks(@NonNull final String text, final boolean fullCheck) {
         return createValidationObservable(text, fullCheck)
-                .map(HalfNullablePair::getFirst)
-                .onErrorResumeNext(throwable -> {
-                    if (throwable instanceof ConversionException || throwable.getCause() instanceof ConversionException) {
-                        Lc.assertion(throwable);
-                        return Observable.just(ValidationState.ERROR_CONVERSION);
-                    }
-                    return Observable.error(throwable);
-                });
+                .map(HalfNullablePair::getFirst);
     }
 
     @NonNull

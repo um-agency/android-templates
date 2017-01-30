@@ -12,7 +12,7 @@ public class SameTypeValidator<TModel extends Serializable> extends Validator<TM
     @NonNull
     @Override
     protected TModel convertWrapperModelToModel(@NonNull final TModel wrapperModel)
-            throws ConversionException {
+            throws Throwable {
         return wrapperModel;
     }
 

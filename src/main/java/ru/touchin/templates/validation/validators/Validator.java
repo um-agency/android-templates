@@ -45,7 +45,7 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
     private final NonNullChangeable<ValidationState> validationStateWhenEmpty = new NonNullChangeable<>(ValidationState.ERROR_NO_DESCRIPTION);
 
     @NonNull
-    protected abstract TModel convertWrapperModelToModel(@NonNull final TWrapperModel wrapperModel) throws ConversionException;
+    protected abstract TModel convertWrapperModelToModel(@NonNull final TWrapperModel wrapperModel) throws Throwable;
 
     @NonNull
     public Changeable<TWrapperModel> getWrapperModel() {
