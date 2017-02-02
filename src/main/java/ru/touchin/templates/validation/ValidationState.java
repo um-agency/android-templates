@@ -24,7 +24,9 @@ import java.io.Serializable;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
- * TODO: fill
+ * Basic class for validation states. If you need to have more states with more data in it -
+ * create class that extends this class and don't forget to redefine {@link #equals(Object)} and {@link #hashCode()} methods.
+ * Don't use same {@link #code} for different states.
  */
 public class ValidationState implements Serializable {
 

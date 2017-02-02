@@ -23,12 +23,23 @@ import android.support.annotation.NonNull;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
- * TODO: fill
+ * Interface for views that must be validated. Have two states - show error or hide error.
+ * You can provide your own Validation State to provide, eg string resource.
+ * In this case use instanceOf to define what state do you have.
  */
 public interface ViewWithError {
 
+    /**
+     * Hides the error when validation passes successful.
+     */
     void hideError();
 
+    /**
+     * Shows error
+     * Pass here error state.
+     * It is not correct to pass here {@link ValidationState#VALID} or {@link ValidationState#INITIAL}
+     * @param validationState error state. Can be other than {@link ValidationState} if you have successor of base {@link ValidationState}.
+     */
     void showError(@NonNull final ValidationState validationState);
 
 }
