@@ -29,7 +29,10 @@ import ru.touchin.templates.validation.ValidationState;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
- * TODO: fill
+ * This class holds information about current state of the object - {@link #getWrapperModel()}(that should be connected to some view),
+ * current error state {@link #getValidationState()}. Also you need to provide a {@link ValidationState} or class that extends it
+ * as an empty state. Eg, if you need to show some text in your view to show user that this view shouldn't be empty - pass needed state
+ * to the {@link #getValidationStateWhenEmpty()}
  */
 public abstract class Validator<TWrapperModel extends Serializable, TModel extends Serializable>
         implements Serializable {
