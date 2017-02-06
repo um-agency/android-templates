@@ -32,15 +32,25 @@ import rx.Observable;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
- * TODO: fill
+ * ValidationController for {@link android.widget.EditText} views. It has method {@link #validation} that response
+ * for validating view. To use this class properly, you need to subscribe to the {@link #modelAndViewUpdating}
+ * and to the {@link #validation} methods.
  */
 public class EditTextValidationController<TModel extends Serializable>
-        extends TwoWayValidationController<String, TModel, EditTextValidator<TModel>> {
+        extends ValidationController<String, TModel, EditTextValidator<TModel>> {
 
     public EditTextValidationController(@NonNull final EditTextValidator<TModel> validationWrapper) {
         super(validationWrapper);
     }
 
+    /**
+     * This method validates bounded view.
+     *
+     * @param focusOutObservable  that emits items when bounded view get focus in or out.
+     * @param activatedObservable emits true when we need to show error on empty fields. Eg when user clicks on Done button but he missed some
+     *                            necessary fields to fill.
+     * @return observable without any concrete type. Simply subscribe to this method to make it works.
+     */
     @NonNull
     public Observable<?> validation(@NonNull final Observable<Boolean> focusOutObservable, @NonNull final Observable<Boolean> activatedObservable) {
         return Observable.combineLatest(activatedObservable,

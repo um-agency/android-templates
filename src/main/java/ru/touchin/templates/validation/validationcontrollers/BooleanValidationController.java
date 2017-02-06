@@ -27,14 +27,20 @@ import rx.Observable;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
- * TODO: fill
+ * {@link ValidationController} for {@link Boolean} models. Eg if you have some flag that should be bounded to checkbox.
  */
-public class BooleanValidationController extends TwoWayValidationController<Boolean, Boolean, SameTypeValidator<Boolean>> {
+public class BooleanValidationController extends ValidationController<Boolean, Boolean, SameTypeValidator<Boolean>> {
 
     public BooleanValidationController(@NonNull final SameTypeValidator<Boolean> validator) {
         super(validator);
     }
 
+    /**
+     * This method validates bounded view.
+     * @param activatedObservable emits true when we need to show error on empty fields. Eg when user clicks on Done button but he missed some
+     *                            necessary fields to fill.
+     * @return observable without any concrete type. Simply subscribe to this method to make it works.
+     */
     @NonNull
     public Observable<?> validation(@NonNull final Observable<Boolean> activatedObservable) {
         return Observable.combineLatest(activatedObservable, getValidator().getWrapperModel().observe(),

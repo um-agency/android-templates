@@ -34,7 +34,9 @@ import rx.schedulers.Schedulers;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
- * TODO: fill
+ * Special class for {@link android.widget.EditText} validation. It holds information about how primary check on typing should be
+ * ({@link #getPrimaryCheck()} - get and set check here) and how final check should be processed too ({@link #getFinalCheck()} - get and set check
+ * here).
  */
 public abstract class EditTextValidator<TModel extends Serializable> extends Validator<String, TModel> {
 
@@ -45,18 +47,32 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
     @NonNull
     private final Changeable<ValidationFunc<String, HalfNullablePair<ValidationState, TModel>>> primaryCheck = new Changeable<>(null);
 
+    /**
+     * This flag needed to force showing errors. You don't want to show final error when you start to enter data in some field at first time.
+     * But if user leaves this view and final check not passed - you need to force to show an error till user not enters correct data and leaves
+     * the view.
+     * @return {@link NonNullChangeable} with current state of the flag - do we need to show errors from final checks while user types.
+     */
     @NonNull
     public NonNullChangeable<Boolean> getShowFullCheck() {
         return showFullCheck;
     }
 
+    /**
+     * Use this method to get or set final check.
+     * @return final check.
+     */
     @NonNull
-    public Changeable<ValidationFunc<TModel, HalfNullablePair<ValidationState, TModel>>> getFinalCheck() {
+    protected Changeable<ValidationFunc<TModel, HalfNullablePair<ValidationState, TModel>>> getFinalCheck() {
         return finalCheck;
     }
 
+    /**
+     * Use this method to get or set primary check.
+     * @return primary check.
+     */
     @NonNull
-    public Changeable<ValidationFunc<String, HalfNullablePair<ValidationState, TModel>>> getPrimaryCheck() {
+    protected Changeable<ValidationFunc<String, HalfNullablePair<ValidationState, TModel>>> getPrimaryCheck() {
         return primaryCheck;
     }
 
@@ -101,16 +117,33 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
                 .map(HalfNullablePair::getFirst);
     }
 
+    /**
+     * Validates text with primary check.
+     * @param text - input text.
+     * @return {@link Observable} with the result of the primary check.
+     */
     @NonNull
     public Observable<ValidationState> primaryValidate(@NonNull final String text) {
         return processChecks(text, false);
     }
 
+    /**
+     * Validates text with final check.
+     * @param text - input text.
+     * @return {@link Observable} with the result of the final check.
+     */
     @NonNull
     public Observable<ValidationState> fullValidate(@NonNull final String text) {
         return processChecks(text, true);
     }
 
+    /**
+     * Validates text with primary and final check consequentially and returns {@link Observable} with {@link HalfNullablePair} of final state
+     * and resulting model.
+     * @param text - input text.
+     * @return pair with final {@link ValidationState} that is always not null and a model that we get after converting the text.
+     *         Model can be null if validation fails on primary or final checks.
+     */
     @NonNull
     public Observable<HalfNullablePair<ValidationState, TModel>> fullValidateAndGetModel(@NonNull final String text) {
         return createValidationObservable(text, true)

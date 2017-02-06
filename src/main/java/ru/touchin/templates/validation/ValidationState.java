@@ -55,10 +55,19 @@ public class ValidationState implements Serializable {
         this.code = code;
     }
 
+    /**
+     * Returns unique code of the {@link ValidationState}.
+     * @return code or the ValidationState.
+     */
     public int getCode() {
         return code;
     }
 
+    /**
+     * Don't forget to override this method!
+     * @param object that you want to compare.
+     * @return true if objects equals and false otherwise.
+     */
     @Override
     public boolean equals(final Object object) {
         return this == object
