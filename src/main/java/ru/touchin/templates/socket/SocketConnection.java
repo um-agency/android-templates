@@ -192,7 +192,7 @@ public abstract class SocketConnection {
                 return;
             }
             try {
-                final byte[] response = (byte[]) args[0];
+                final byte[] response = args[0] instanceof byte[] ? (byte[]) args[0] : args[0].toString().getBytes();
                 final TMessage message = socketEvent.parse(response);
                 if (socketEvent.getEventDataHandler() != null) {
                     socketEvent.getEventDataHandler().handleMessage(message);
