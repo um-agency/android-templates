@@ -65,7 +65,7 @@ public class EditTextValidationController<TModel extends Serializable>
                     return validationPair.getSecond()
                             .doOnNext(validationState -> {
                                 if (!validationPair.getFirst()) {
-                                    getValidator().getShowFullCheck().set(validationState != ValidationState.VALID);
+                                    getValidator().getShowFullCheck().set(showError(validationState));
                                 }
                                 getValidator().getValidationState().set(validationState);
                             });
