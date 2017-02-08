@@ -25,7 +25,9 @@ import java.io.Serializable;
 
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
+import ru.touchin.roboswag.core.utils.pairs.HalfNullablePair;
 import ru.touchin.templates.validation.ValidationState;
+import rx.Observable;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
@@ -86,5 +88,14 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
     public NonNullChangeable<ValidationState> getValidationStateWhenEmpty() {
         return validationStateWhenEmpty;
     }
+
+    /**
+     * Validates {@link TWrapperModel} and returns {@link Observable} with {@link HalfNullablePair} of final state and resulting model.
+     * @param wrapperModel - not null value that should be validated.
+     * @return pair with final {@link ValidationState} that is always not null and a model that we get after converting the {@link TWrapperModel}.
+     *         Model can be null if validation fails.
+     */
+    @NonNull
+    public abstract Observable<HalfNullablePair<ValidationState, TModel>> fullValidateAndGetModel(@NonNull final TWrapperModel wrapperModel);
 
 }

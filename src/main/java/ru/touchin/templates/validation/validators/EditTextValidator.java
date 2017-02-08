@@ -145,6 +145,7 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
      *         Model can be null if validation fails on primary or final checks.
      */
     @NonNull
+    @Override
     public Observable<HalfNullablePair<ValidationState, TModel>> fullValidateAndGetModel(@NonNull final String text) {
         return createValidationObservable(text, true)
                 .first();
