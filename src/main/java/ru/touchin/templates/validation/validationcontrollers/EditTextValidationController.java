@@ -39,6 +39,8 @@ import rx.Observable;
 public class EditTextValidationController<TModel extends Serializable>
         extends ValidationController<String, TModel, EditTextValidator<TModel>> {
 
+    private boolean showErrorOnFocusOut = true;
+
     public EditTextValidationController(@NonNull final EditTextValidator<TModel> validationWrapper) {
         super(validationWrapper);
     }
@@ -56,7 +58,7 @@ public class EditTextValidationController<TModel extends Serializable>
         return Observable.combineLatest(activatedObservable,
                 getValidator().getWrapperModel().observe(),
                 focusOutObservable,
-                getValidator().getShowFullCheck().observe(),
+                showErrorOnFocusOut ? getValidator().getShowFullCheck().observe() : Observable.just(false),
                 this::getValidationPair)
                 .switchMap(validationPair -> {
                     if (validationPair == null) {
@@ -91,6 +93,16 @@ public class EditTextValidationController<TModel extends Serializable>
             return new NonNullPair<>(true, getValidator().primaryValidate(text));
         }
         return new NonNullPair<>(focus, getValidator().fullValidate(text));
+    }
+
+    /**
+     * If we don't want to show error when focus is lost.
+     *
+     * @param showErrorOnFocusOut  show an error or don't show an error. 
+     *
+     */
+    public void setShowErrorOnFocusOut(final boolean showErrorOnFocusOut) {
+        this.showErrorOnFocusOut = showErrorOnFocusOut;
     }
 
 }
