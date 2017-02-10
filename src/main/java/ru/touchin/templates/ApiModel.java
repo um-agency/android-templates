@@ -23,6 +23,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -33,7 +34,9 @@ import ru.touchin.roboswag.core.log.LcGroup;
  * Created by Gavriil Sitnikov on 11/08/2016.
  * Just model from getting from API.
  */
-public abstract class ApiModel {
+public abstract class ApiModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Logging group to log API validation errors.
