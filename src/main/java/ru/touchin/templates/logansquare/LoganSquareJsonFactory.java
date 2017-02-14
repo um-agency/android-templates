@@ -26,21 +26,15 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.net.SocketException;
 
-import javax.net.ssl.SSLException;
-
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okhttp3.internal.http2.StreamResetException;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-import ru.touchin.roboswag.core.log.Lc;
-import ru.touchin.templates.ApiModel;
+import ru.touchin.templates.retrofit.JsonRequestBodyConverter;
+import ru.touchin.templates.retrofit.JsonResponseBodyConverter;
 
 /**
  * Created by Gavriil Sitnikov on 2/06/2016.
@@ -63,57 +57,31 @@ public class LoganSquareJsonFactory extends Converter.Factory {
         return new LoganSquareRequestBodyConverter<>();
     }
 
-    public static class LoganSquareJsonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
+    public static class LoganSquareJsonResponseBodyConverter<T> extends JsonResponseBodyConverter<T> {
 
         @NonNull
         private final Type type;
 
         public LoganSquareJsonResponseBodyConverter(@NonNull final Type type) {
+            super();
             this.type = type;
         }
 
-        @SuppressWarnings({"unchecked", "PMD.AvoidInstanceofChecksInCatchClause"})
-        //AvoidInstanceofChecksInCatchClause: we just don't need assertion on specific exceptions
+        @SuppressWarnings("unchecked")
         @NonNull
         @Override
-        public T convert(@NonNull final ResponseBody value) throws IOException {
-            final T result;
-            try {
-                result = (T) LoganSquare.parse(value.byteStream(), (Class) type);
-            } catch (final IOException exception) {
-                if (!(exception instanceof SocketException)
-                        && !(exception instanceof InterruptedIOException)
-                        && !(exception instanceof SSLException)
-                        && !(exception instanceof StreamResetException)) {
-                    Lc.assertion(exception);
-                }
-                throw exception;
-            }
-
-            if (result instanceof ApiModel) {
-                try {
-                    ((ApiModel) result).validate();
-                } catch (final ApiModel.ValidationException validationException) {
-                    Lc.assertion(validationException);
-                    throw validationException;
-                }
-            }
-
-            return result;
+        protected T parseResponse(@NonNull final ResponseBody value) throws IOException {
+            return (T) LoganSquare.parse(value.byteStream(), (Class) type);
         }
 
     }
 
-    public static class LoganSquareRequestBodyConverter<T> implements Converter<T, RequestBody> {
+    public static class LoganSquareRequestBodyConverter<T> extends JsonRequestBodyConverter<T> {
 
-        private static final MediaType MEDIA_TYPE = MediaType.parse("application/json; charset=UTF-8");
-
-        @NonNull
         @Override
-        public RequestBody convert(@NonNull final T value) throws IOException {
-            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        protected void writeValueToByteArray(@NonNull final T value, @NonNull final ByteArrayOutputStream byteArrayOutputStream)
+                throws IOException {
             LoganSquare.serialize(value, byteArrayOutputStream);
-            return RequestBody.create(MEDIA_TYPE, byteArrayOutputStream.toByteArray());
         }
 
     }

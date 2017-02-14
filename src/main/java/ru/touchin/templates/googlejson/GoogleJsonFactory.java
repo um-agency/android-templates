@@ -21,26 +21,20 @@ package ru.touchin.templates.googlejson;
 
 import android.support.annotation.NonNull;
 
-import com.google.api.client.http.AbstractHttpContent;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.net.SocketException;
 
-import javax.net.ssl.SSLException;
-
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okhttp3.internal.http2.StreamResetException;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
-import ru.touchin.roboswag.core.log.Lc;
+import ru.touchin.templates.retrofit.JsonRequestBodyConverter;
+import ru.touchin.templates.retrofit.JsonResponseBodyConverter;
 
 /**
  * Created by Gavriil Sitnikov on 2/06/2016.
@@ -63,58 +57,31 @@ public class GoogleJsonFactory extends Converter.Factory {
         return new GoogleJsonRequestBodyConverter<>();
     }
 
-    public static class GoogleJsonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
+    public static class GoogleJsonResponseBodyConverter<T> extends JsonResponseBodyConverter<T> {
 
         @NonNull
         private final Type type;
 
         public GoogleJsonResponseBodyConverter(@NonNull final Type type) {
+            super();
             this.type = type;
         }
 
-        @SuppressWarnings({"unchecked", "PMD.AvoidInstanceofChecksInCatchClause"})
-        //AvoidInstanceofChecksInCatchClause: we just don't need assertion on specific exceptions
+        @SuppressWarnings("unchecked")
         @NonNull
         @Override
-        public T convert(@NonNull final ResponseBody value) throws IOException {
-            final T result;
-            try {
-                result = (T) GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(value.charStream()).parse(type, true);
-            } catch (final IOException exception) {
-                if (!(exception instanceof SocketException)
-                        && !(exception instanceof InterruptedIOException)
-                        && !(exception instanceof SSLException)
-                        && !(exception instanceof StreamResetException)) {
-                    Lc.assertion(exception);
-                }
-                throw exception;
-            }
-
-            if (result instanceof GoogleJsonModel) {
-                try {
-                    ((GoogleJsonModel) result).validate();
-                } catch (final GoogleJsonModel.ValidationException validationException) {
-                    Lc.assertion(validationException);
-                    throw validationException;
-                }
-            }
-
-            return result;
+        protected T parseResponse(@NonNull final ResponseBody value) throws IOException {
+            return (T) GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(value.charStream()).parse(type, true);
         }
 
     }
 
-    public static class GoogleJsonRequestBodyConverter<T> implements Converter<T, RequestBody> {
+    public static class GoogleJsonRequestBodyConverter<T> extends JsonRequestBodyConverter<T> {
 
-        private static final MediaType MEDIA_TYPE = MediaType.parse("application/json; charset=UTF-8");
-
-        @NonNull
         @Override
-        public RequestBody convert(@NonNull final T value) throws IOException {
-            final AbstractHttpContent content = new JsonHttpContent(GoogleJsonModel.DEFAULT_JSON_FACTORY, value);
-            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            content.writeTo(byteArrayOutputStream);
-            return RequestBody.create(MEDIA_TYPE, byteArrayOutputStream.toByteArray());
+        protected void writeValueToByteArray(@NonNull final T value, @NonNull final ByteArrayOutputStream byteArrayOutputStream)
+                throws IOException {
+            new JsonHttpContent(GoogleJsonModel.DEFAULT_JSON_FACTORY, value).writeTo(byteArrayOutputStream);
         }
 
     }
