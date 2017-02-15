@@ -76,11 +76,11 @@ public class LoganSquareJsonFactory extends Converter.Factory {
         @Override
         protected T parseResponse(@NonNull final ResponseBody value) throws IOException {
             if (type instanceof ParameterizedType) {
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                Type firstType = typeArguments[0];
+                final ParameterizedType parameterizedType = (ParameterizedType) type;
+                final Type[] typeArguments = parameterizedType.getActualTypeArguments();
+                final Type firstType = typeArguments[0];
 
-                Type rawType = parameterizedType.getRawType();
+                final Type rawType = parameterizedType.getRawType();
                 if (rawType == Map.class) {
                     return  (T) LoganSquare.parseMap(value.byteStream(), (Class<?>) typeArguments[1]);
                 } else if (rawType == List.class) {
