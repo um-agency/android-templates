@@ -66,6 +66,7 @@ public abstract class JsonResponseBodyConverter<T> implements Converter<Response
                 Lc.assertion(validationException);
                 throw validationException;
             }
+            checkForRequestException(result);
         }
 
         return result;
@@ -80,5 +81,13 @@ public abstract class JsonResponseBodyConverter<T> implements Converter<Response
      */
     @NonNull
     protected abstract T parseResponse(@NonNull ResponseBody value) throws IOException;
+
+    /**
+     * Check response object for error if need.
+     *
+     * @param result Response object;
+     * @throws IOException Throws during checking.
+     */
+    protected void checkForRequestException(final T result) throws IOException {}
 
 }
