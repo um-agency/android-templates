@@ -111,7 +111,7 @@ public final class CalendarUtils {
                 addition = 0;
             } else {
                 count++;
-                addition = ((int) Math.ceil(count / 2)) * ((int) (StrictMath.pow(-1, (count - 1))));
+                addition = ((int) Math.ceil(count / 2)) * ((int) StrictMath.pow(-1, count - 1));
             }
         }
     }
@@ -159,7 +159,7 @@ public final class CalendarUtils {
 
                 if (firstDayInWeek != 0) {
                     calendarItems.add(new CalendarEmptyItem(shift + daysEnded, shift + daysEnded + (DAYS_IN_WEEK - firstDayInWeek - 1)));
-                    shift += (DAYS_IN_WEEK - firstDayInWeek);
+                    shift += DAYS_IN_WEEK - firstDayInWeek;
                 }
 
                 calendarItems.add(new CalendarHeaderItem(tempTime.getYear(), tempTime.getMonthOfYear() - 1, shift + daysEnded, shift + daysEnded));

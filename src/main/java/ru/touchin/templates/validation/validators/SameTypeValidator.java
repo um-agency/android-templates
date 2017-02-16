@@ -9,8 +9,6 @@ import ru.touchin.roboswag.core.utils.pairs.HalfNullablePair;
 import ru.touchin.templates.validation.ValidationState;
 import rx.Observable;
 
-import static ru.touchin.templates.validation.ValidationState.VALID;
-
 /**
  * Created by Ilia Kurtov on 24/01/2017.
  * Class that simplifies work with {@link Validator}'s that have the same wrapper model and model type.
@@ -40,7 +38,7 @@ public class SameTypeValidator<TModel extends Serializable> extends Validator<TM
     @NonNull
     @Override
     public Observable<HalfNullablePair<ValidationState, TModel>> fullValidateAndGetModel(@NonNull final TModel wrapperModel) {
-        return Observable.just(new HalfNullablePair<>(VALID, wrapperModel));
+        return Observable.just(new HalfNullablePair<>(ValidationState.VALID, wrapperModel));
     }
 
 }
