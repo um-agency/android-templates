@@ -43,8 +43,8 @@ public class LoganSquareJodaTimeConverter implements TypeConverter<DateTime> {
         final String dateString = jsonParser.getValueAsString();
         try {
             return new DateTime(dateString);
-        } catch (RuntimeException e) {
-            Lc.assertion(e);
+        } catch (final RuntimeException exception) {
+            Lc.assertion(exception);
         }
         return null;
     }
