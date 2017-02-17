@@ -214,8 +214,8 @@ public abstract class HttpRequest<T> {
                         .<T>create(requestSubscriber -> {
                             try {
                                 requestSubscriber.onNext(executeSyncInternal(requestController));
-                            } catch (final IOException e) {
-                                requestSubscriber.onError(e);
+                            } catch (final IOException exception) {
+                                requestSubscriber.onError(exception);
                             }
                             requestSubscriber.onCompleted();
                         })
