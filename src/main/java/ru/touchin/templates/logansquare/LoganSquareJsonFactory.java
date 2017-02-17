@@ -75,22 +75,28 @@ public class LoganSquareJsonFactory extends Converter.Factory {
         @NonNull
         @Override
         protected T parseResponse(@NonNull final ResponseBody value) throws IOException {
-            if (type instanceof ParameterizedType) {
-                final ParameterizedType parameterizedType = (ParameterizedType) type;
-                final Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                final Type firstType = typeArguments[0];
+            try {
+                if (type instanceof ParameterizedType) {
+                    final ParameterizedType parameterizedType = (ParameterizedType) type;
+                    final Type[] typeArguments = parameterizedType.getActualTypeArguments();
+                    final Type firstType = typeArguments[0];
 
-                final Type rawType = parameterizedType.getRawType();
-                if (rawType == Map.class) {
-                    return  (T) LoganSquare.parseMap(value.byteStream(), (Class<?>) typeArguments[1]);
-                } else if (rawType == List.class) {
-                    return  (T) LoganSquare.parseList(value.byteStream(), (Class<?>) firstType);
+                    final Type rawType = parameterizedType.getRawType();
+                    if (rawType == Map.class) {
+                        return  (T) LoganSquare.parseMap(value.byteStream(), (Class<?>) typeArguments[1]);
+                    } else if (rawType == List.class) {
+                        return  (T) LoganSquare.parseList(value.byteStream(), (Class<?>) firstType);
+                    } else {
+                        // Generics
+                        return (T) LoganSquare.parse(value.byteStream(), ConverterUtils.parameterizedTypeOf(type));
+                    }
                 } else {
-                    // Generics
-                    return (T) LoganSquare.parse(value.byteStream(), ConverterUtils.parameterizedTypeOf(type));
+                    return (T) LoganSquare.parse(value.byteStream(), (Class) type);
                 }
-            } else {
-                return (T) LoganSquare.parse(value.byteStream(), (Class) type);
+
+            } finally {
+                // Close the response body after being done with it
+                value.close();
             }
         }
 
