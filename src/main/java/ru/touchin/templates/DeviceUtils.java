@@ -139,6 +139,19 @@ public final class DeviceUtils {
     }
 
     /**
+     * Detects if some network connected.
+     *
+     * @param context Application context
+     * @return true if network connected, false otherwise.
+     */
+    public static boolean isNetworkConnected(@NonNull final Context context) {
+        return getNetworkType(context) != NetworkType.NONE;
+    }
+
+    private DeviceUtils() {
+    }
+
+    /**
      * Available network types.
      */
     public enum NetworkType {
@@ -178,19 +191,6 @@ public final class DeviceUtils {
             return name;
         }
 
-    }
-
-    /**
-     * Detects if some network connected.
-     *
-     * @param context Application context
-     * @return true if network connected, false otherwise.
-     */
-    public static boolean isNetworkConnected(@NonNull final Context context) {
-        return getNetworkType(context) != NetworkType.NONE;
-    }
-
-    private DeviceUtils() {
     }
 
 }

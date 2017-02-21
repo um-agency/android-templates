@@ -36,6 +36,7 @@ public interface SocketMessageHandler<TMessage> {
      * @return Result of handling message;
      * @throws Exception Throws during handling.
      */
+    @NonNull
     TMessage handleMessage(@NonNull TMessage message) throws Exception;
 
 }

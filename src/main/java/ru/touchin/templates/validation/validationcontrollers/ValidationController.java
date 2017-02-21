@@ -41,13 +41,13 @@ public class ValidationController
     @NonNull
     private final TValidator validator;
 
+    public ValidationController(@NonNull final TValidator validator) {
+        this.validator = validator;
+    }
+
     @NonNull
     public TValidator getValidator() {
         return validator;
-    }
-
-    public ValidationController(@NonNull final TValidator validator) {
-        this.validator = validator;
     }
 
     /**
