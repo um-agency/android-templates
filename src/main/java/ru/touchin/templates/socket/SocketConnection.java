@@ -20,6 +20,7 @@
 package ru.touchin.templates.socket;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -133,6 +134,7 @@ public abstract class SocketConnection {
         return socketObservable.map(pair -> pair.second);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     //unchecked: it's OK as we are caching raw observables
     protected <T> Observable<T> observeEvent(@NonNull final SocketEvent<T> socketEvent) {
@@ -187,7 +189,7 @@ public abstract class SocketConnection {
         }
 
         @Override
-        public void call(final Object... args) {
+        public void call(@Nullable final Object... args) {
             if (args == null || args[0] == null) {
                 return;
             }

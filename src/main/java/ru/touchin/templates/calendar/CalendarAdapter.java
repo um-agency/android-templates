@@ -132,8 +132,9 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
         notifyItemRangeChanged(startSelectionPosition, endSelectionPosition - startSelectionPosition);
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         switch (viewType) {
             case HEADER_ITEM_TYPE:
                 return createHeaderViewHolder(parent);
@@ -142,7 +143,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
             case DAY_ITEM_TYPE:
                 return createDayViewHolder(parent);
             default:
-                return null;
+                throw new ShouldNotHappenException("Unexpected viewType " + viewType);
         }
     }
 
@@ -152,7 +153,8 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
      * @param parent {@link ViewGroup} for inflating ViewHolder;
      * @return New THeaderViewHolder;
      */
-    protected abstract THeaderViewHolder createHeaderViewHolder(final ViewGroup parent);
+    @NonNull
+    protected abstract THeaderViewHolder createHeaderViewHolder(@NonNull final ViewGroup parent);
 
     /**
      * Method that creates Empty ViewHolder with type of TEmptyViewHolder.
@@ -160,7 +162,8 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
      * @param parent {@link ViewGroup} for inflating ViewHolder;
      * @return New TEmptyViewHolder;
      */
-    protected abstract TEmptyViewHolder createEmptyViewHolder(final ViewGroup parent);
+    @NonNull
+    protected abstract TEmptyViewHolder createEmptyViewHolder(@NonNull final ViewGroup parent);
 
     /**
      * Method that creates Day ViewHolder with type of TDayViewHolder.
@@ -168,7 +171,8 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
      * @param parent {@link ViewGroup} for inflating ViewHolder;
      * @return New TDayViewHolder;
      */
-    protected abstract TDayViewHolder createDayViewHolder(final ViewGroup parent);
+    @NonNull
+    protected abstract TDayViewHolder createDayViewHolder(@NonNull final ViewGroup parent);
 
     /**
      * Bind data to a Header ViewHolder.
@@ -208,7 +212,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         final CalendarItem calendarItem = CalendarUtils.findItemByPosition(calendarItems, position);
 
         if (calendarItem instanceof CalendarHeaderItem) {
@@ -234,7 +238,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
 
     //TODO fix suppress
     @SuppressWarnings("PMD.CyclomaticComplexity")
-    private void bindDay(final TDayViewHolder holder, final int position, final CalendarItem calendarItem) {
+    private void bindDay(@NonNull final TDayViewHolder holder, final int position, @NonNull final CalendarItem calendarItem) {
         final String currentDay = String.valueOf(((CalendarDayItem) calendarItem).getPositionOfFirstDay()
                 + position - calendarItem.getStartRange());
         final DateTime currentDate = new DateTime(((CalendarDayItem) calendarItem).getDateOfFirstDay()
