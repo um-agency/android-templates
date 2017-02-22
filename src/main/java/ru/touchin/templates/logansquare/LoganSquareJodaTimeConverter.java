@@ -41,8 +41,11 @@ public class LoganSquareJodaTimeConverter implements TypeConverter<DateTime> {
     @Override
     public DateTime parse(@NonNull final JsonParser jsonParser) throws IOException {
         final String dateString = jsonParser.getValueAsString();
+        if (dateString == null) {
+            return null;
+        }
         try {
-            return new DateTime(dateString);
+            return DateTime.parse(dateString);
         } catch (RuntimeException e) {
             Lc.assertion(e);
         }
@@ -56,9 +59,9 @@ public class LoganSquareJodaTimeConverter implements TypeConverter<DateTime> {
                           @NonNull final JsonGenerator jsonGenerator)
             throws IOException {
         if (fieldName != null) {
-            jsonGenerator.writeStringField(fieldName, object.toString());
+            jsonGenerator.writeStringField(fieldName, object != null ? object.toString() : null);
         } else {
-            jsonGenerator.writeString(object.toString());
+            jsonGenerator.writeString(object != null ? object.toString() : null);
         }
     }
 
