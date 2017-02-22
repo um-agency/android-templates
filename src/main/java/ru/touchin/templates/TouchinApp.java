@@ -81,6 +81,7 @@ public abstract class TouchinApp extends Application {
     public void onCreate() {
         super.onCreate();
         RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
+            @NonNull
             @Override
             public Scheduler getMainThreadScheduler() {
                 return new MainThreadScheduler();
@@ -171,6 +172,7 @@ public abstract class TouchinApp extends Application {
      */
     private static class MainThreadScheduler extends Scheduler {
 
+        @NonNull
         @Override
         public Worker createWorker() {
             return new WrapperMainThreadWorker();
@@ -181,6 +183,7 @@ public abstract class TouchinApp extends Application {
             @NonNull
             private final Worker parentWorker = AndroidSchedulers.from(Looper.getMainLooper()).createWorker();
 
+            @NonNull
             @Override
             public Subscription schedule(@NonNull final Action0 action) {
                 if (Looper.getMainLooper().equals(Looper.myLooper())) {
@@ -190,6 +193,7 @@ public abstract class TouchinApp extends Application {
                 return parentWorker.schedule(action);
             }
 
+            @NonNull
             @Override
             public Subscription schedule(@NonNull final Action0 action, final long delayTime, @NonNull final TimeUnit unit) {
                 return parentWorker.schedule(action, delayTime, unit);

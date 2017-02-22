@@ -87,7 +87,7 @@ public abstract class SocketEvent<TMessage> {
     public abstract TMessage parse(@NonNull final byte[] data) throws IOException;
 
     @Override
-    public boolean equals(final Object object) {
+    public boolean equals(@Nullable final Object object) {
         return object instanceof SocketEvent
                 && ((SocketEvent) object).name.equals(name)
                 && ((SocketEvent) object).messageClass.equals(messageClass);

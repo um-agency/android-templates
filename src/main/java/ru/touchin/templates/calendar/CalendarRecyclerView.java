@@ -66,7 +66,7 @@ public class CalendarRecyclerView extends RecyclerView {
 
     @Override
     @Deprecated
-    public void setAdapter(final Adapter adapter) {
+    public void setAdapter(@NonNull final Adapter adapter) {
         Lc.assertion("Unsupported adapter class. Use CalendarAdapter instead.");
     }
 

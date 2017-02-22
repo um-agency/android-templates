@@ -42,6 +42,7 @@ import ru.touchin.templates.retrofit.JsonResponseBodyConverter;
  */
 public class GoogleJsonFactory extends Converter.Factory {
 
+    @NonNull
     @Override
     public Converter<ResponseBody, ?> responseBodyConverter(@NonNull final Type type,
                                                             @NonNull final Annotation[] annotations,
@@ -49,6 +50,7 @@ public class GoogleJsonFactory extends Converter.Factory {
         return new GoogleJsonResponseBodyConverter<>(type);
     }
 
+    @NonNull
     @Override
     public Converter<?, RequestBody> requestBodyConverter(@NonNull final Type type,
                                                           @NonNull final Annotation[] parameterAnnotations,

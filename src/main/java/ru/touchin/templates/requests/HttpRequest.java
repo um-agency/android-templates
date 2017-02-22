@@ -60,6 +60,7 @@ public abstract class HttpRequest<T> {
         return contentType == null ? DEFAULT_CHARSET : contentType.charset(DEFAULT_CHARSET);
     }
 
+    @NonNull
     private static String requestBodyToString(@NonNull final Request request) throws IOException {
         final RequestBody body = request.newBuilder().build().body();
         if (body == null) {
@@ -214,8 +215,8 @@ public abstract class HttpRequest<T> {
                         .<T>create(requestSubscriber -> {
                             try {
                                 requestSubscriber.onNext(executeSyncInternal(requestController));
-                            } catch (final IOException e) {
-                                requestSubscriber.onError(e);
+                            } catch (final IOException exception) {
+                                requestSubscriber.onError(exception);
                             }
                             requestSubscriber.onCompleted();
                         })

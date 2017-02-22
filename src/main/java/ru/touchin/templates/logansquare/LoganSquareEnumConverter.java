@@ -20,6 +20,7 @@
 package ru.touchin.templates.logansquare;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.bluelinelabs.logansquare.typeconverters.StringBasedTypeConverter;
 
@@ -40,8 +41,12 @@ public class LoganSquareEnumConverter<T extends Enum & LoganSquareEnum> extends 
         this.enumValues = enumValues;
     }
 
+    @Nullable
     @Override
-    public T getFromString(@NonNull final String string) {
+    public T getFromString(@Nullable final String string) {
+        if (string == null) {
+            return null;
+        }
         for (final T value : enumValues) {
             if (value.getValueName().equals(string)) {
                 return value;
@@ -50,8 +55,12 @@ public class LoganSquareEnumConverter<T extends Enum & LoganSquareEnum> extends 
         throw new ShouldNotHappenException();
     }
 
+    @Nullable
     @Override
-    public String convertToString(final T object) {
+    public String convertToString(@Nullable final T object) {
+        if (object == null) {
+            return null;
+        }
         return object.getValueName();
     }
 
