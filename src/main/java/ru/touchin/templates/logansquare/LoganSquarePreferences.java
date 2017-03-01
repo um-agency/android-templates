@@ -26,15 +26,13 @@ import android.support.annotation.Nullable;
 import com.bluelinelabs.logansquare.LoganSquare;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import ru.touchin.roboswag.components.utils.storables.PreferenceStore;
-import ru.touchin.roboswag.core.observables.storable.SafeConverter;
+import ru.touchin.roboswag.core.observables.storable.Converter;
 import ru.touchin.roboswag.core.observables.storable.Storable;
-import ru.touchin.roboswag.core.observables.storable.concrete.NonNullSafeListStorable;
-import ru.touchin.roboswag.core.observables.storable.concrete.NonNullSafeStorable;
-import ru.touchin.roboswag.core.observables.storable.concrete.SafeListStorable;
-import ru.touchin.roboswag.core.observables.storable.concrete.SafeStorable;
+import ru.touchin.roboswag.core.observables.storable.concrete.NonNullStorable;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 
 /**
@@ -46,94 +44,53 @@ import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 public final class LoganSquarePreferences {
 
     @NonNull
-    public static <T> SafeStorable<String, T, String> jsonStorable(@NonNull final String name,
-                                                                   @NonNull final Class<T> jsonClass,
-                                                                   @NonNull final SharedPreferences preferences) {
-        return new Storable.Builder<String, T, String>(name, jsonClass, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
-                .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonConverter<>())
+    public static <T> Storable<String, T, String> jsonStorable(@NonNull final String name,
+                                                               @NonNull final Class<T> jsonClass,
+                                                               @NonNull final SharedPreferences preferences) {
+        return new Storable.Builder<String, T, String>(name, jsonClass, String.class, new PreferenceStore<>(preferences), new JsonConverter<>())
+                .setObserveStrategy(Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
                 .build();
     }
 
     @NonNull
-    public static <T> NonNullSafeStorable<String, T, String> jsonStorable(@NonNull final String name,
-                                                                          @NonNull final Class<T> jsonClass,
-                                                                          @NonNull final SharedPreferences preferences,
-                                                                          @NonNull final T defaultValue) {
-        return new Storable.Builder<String, T, String>(name, jsonClass, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
-                .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonConverter<>())
+    public static <T> NonNullStorable<String, T, String> jsonStorable(@NonNull final String name,
+                                                                      @NonNull final Class<T> jsonClass,
+                                                                      @NonNull final SharedPreferences preferences,
+                                                                      @NonNull final T defaultValue) {
+        return new Storable.Builder<String, T, String>(name, jsonClass, String.class, new PreferenceStore<>(preferences), new JsonConverter<>())
+                .setObserveStrategy(Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
                 .setDefaultValue(defaultValue)
                 .build();
     }
 
     @NonNull
-    public static <T> SafeListStorable<String, T, String> jsonListStorable(@NonNull final String name,
-                                                                           @NonNull final Class<T> jsonClass,
-                                                                           @NonNull final SharedPreferences preferences) {
-        return new SafeListStorable<>(new Storable.Builder<String, List, String>(name, List.class, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
-                .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonListConverter<>(jsonClass))
-                .build());
+    public static <T> Storable<String, List<T>, String> jsonListStorable(@NonNull final String name,
+                                                                         @NonNull final Class<T> jsonListItemClass,
+                                                                         @NonNull final SharedPreferences preferences) {
+        return new Storable.Builder<>(name, List.class, String.class, new PreferenceStore<>(preferences), new JsonListConverter<>(jsonListItemClass))
+                .setObserveStrategy(Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
+                .build();
     }
 
     @NonNull
-    public static <T> NonNullSafeListStorable<String, T, String> jsonListStorable(@NonNull final String name,
-                                                                                  @NonNull final Class<T> jsonClass,
-                                                                                  @NonNull final SharedPreferences preferences,
-                                                                                  @NonNull final List<T> defaultValue) {
-        return new NonNullSafeListStorable<>(new Storable.Builder<String, List, String>(name, List.class, Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
-                .setSafeStore(String.class, new PreferenceStore<>(preferences), new JsonListConverter<>(jsonClass))
+    public static <T> NonNullStorable<String, List<T>, String> jsonListStorable(@NonNull final String name,
+                                                                                @NonNull final Class<T> jsonListItemClass,
+                                                                                @NonNull final SharedPreferences preferences,
+                                                                                @NonNull final List<T> defaultValue) {
+        return new Storable.Builder<>(name, List.class, String.class, new PreferenceStore<>(preferences), new JsonListConverter<>(jsonListItemClass))
+                .setObserveStrategy(Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
                 .setDefaultValue(defaultValue)
-                .build());
+                .build();
     }
 
     private LoganSquarePreferences() {
     }
 
-    public static class JsonListConverter<T> implements SafeConverter<List, String> {
-
-        @NonNull
-        private final Class<T> itemClass;
-
-        public JsonListConverter(@NonNull final Class<T> itemClass) {
-            this.itemClass = itemClass;
-        }
+    public static class JsonConverter<TJsonObject> implements Converter<TJsonObject, String> {
 
         @Nullable
         @Override
-        @SuppressWarnings("unchecked")
-        public String toStoreObject(@NonNull final Class<List> jsonObjectClass, @NonNull final Class<String> stringClass,
-                                    @Nullable final List object) {
-            if (object == null) {
-                return null;
-            }
-            try {
-                return LoganSquare.serialize(object, itemClass);
-            } catch (final IOException exception) {
-                throw new ShouldNotHappenException(exception);
-            }
-        }
-
-        @Nullable
-        @Override
-        public List toObject(@NonNull final Class<List> jsonObjectClass, @NonNull final Class<String> stringClass,
-                             @Nullable final String storeValue) {
-            if (storeValue == null) {
-                return null;
-            }
-            try {
-                return LoganSquare.parseList(storeValue, itemClass);
-            } catch (final IOException exception) {
-                throw new ShouldNotHappenException(exception);
-            }
-        }
-
-    }
-
-    public static class JsonConverter<TJsonObject> implements SafeConverter<TJsonObject, String> {
-
-        @Nullable
-        @Override
-        public String toStoreObject(@NonNull final Class<TJsonObject> jsonObjectClass, @NonNull final Class<String> stringClass,
-                                    @Nullable final TJsonObject object) {
+        public String toStoreObject(@NonNull final Type jsonObjectType, @NonNull final Type stringType, @Nullable final TJsonObject object) {
             if (object == null) {
                 return null;
             }
@@ -146,13 +103,51 @@ public final class LoganSquarePreferences {
 
         @Nullable
         @Override
-        public TJsonObject toObject(@NonNull final Class<TJsonObject> jsonObjectClass, @NonNull final Class<String> stringClass,
-                                    @Nullable final String storeValue) {
+        @SuppressWarnings("unchecked")
+        public TJsonObject toObject(@NonNull final Type jsonObjectClass, @NonNull final Type stringClass, @Nullable final String storeValue) {
             if (storeValue == null) {
                 return null;
             }
             try {
-                return LoganSquare.parse(storeValue, jsonObjectClass);
+                return LoganSquare.parse(storeValue, (Class<TJsonObject>) jsonObjectClass);
+            } catch (final IOException exception) {
+                throw new ShouldNotHappenException(exception);
+            }
+        }
+
+    }
+
+    public static class JsonListConverter<T> implements Converter<List<T>, String> {
+
+        @NonNull
+        private final Class<T> itemClass;
+
+        public JsonListConverter(@NonNull final Class<T> itemClass) {
+            this.itemClass = itemClass;
+        }
+
+        @Nullable
+        @Override
+        @SuppressWarnings("unchecked")
+        public String toStoreObject(@NonNull final Type jsonObjectType, @NonNull final Type stringType, @Nullable final List<T> object) {
+            if (object == null) {
+                return null;
+            }
+            try {
+                return LoganSquare.serialize(object, itemClass);
+            } catch (final IOException exception) {
+                throw new ShouldNotHappenException(exception);
+            }
+        }
+
+        @Nullable
+        @Override
+        public List<T> toObject(@NonNull final Type jsonObjectType, @NonNull final Type stringType, @Nullable final String storeValue) {
+            if (storeValue == null) {
+                return null;
+            }
+            try {
+                return LoganSquare.parseList(storeValue, itemClass);
             } catch (final IOException exception) {
                 throw new ShouldNotHappenException(exception);
             }
