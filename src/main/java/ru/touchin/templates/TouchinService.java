@@ -35,6 +35,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.OnErrorThrowable;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Actions;
@@ -168,12 +169,24 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
                                    @NonNull final Action1<T> onNextAction,
                                    @NonNull final Action1<Throwable> onErrorAction,
                                    @NonNull final Action0 onCompletedAction) {
+        final Observable<T> actualObservable;
+        if (onNextAction == Actions.empty() && onNextAction == Actions.empty() && onNextAction == Actions.empty()) {
+            actualObservable = observable.doOnCompleted(onCompletedAction);
+        } else {
+            actualObservable = observable.observeOn(AndroidSchedulers.mainThread()).doOnCompleted(onCompletedAction);
+        }
+
         return isCreatedSubject.first()
-                .switchMap(created -> created
-                        ? observable.observeOn(AndroidSchedulers.mainThread()).doOnCompleted(onCompletedAction)
-                        : Observable.empty())
+                .switchMap(created -> created ? actualObservable : Observable.empty())
                 .takeUntil(conditionSubject.filter(condition -> condition))
-                .subscribe(onNextAction, onErrorAction);
+                .subscribe(onNextAction, throwable -> {
+                    final boolean isRxError = throwable instanceof OnErrorThrowable;
+                    if ((!isRxError && throwable instanceof RuntimeException)
+                            || (isRxError && throwable.getCause() instanceof RuntimeException)) {
+                        Lc.assertion(throwable);
+                    }
+                    onErrorAction.call(throwable);
+                });
     }
 
     @SuppressWarnings("CPD-END")
