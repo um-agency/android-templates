@@ -170,7 +170,7 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
                                    @NonNull final Action1<Throwable> onErrorAction,
                                    @NonNull final Action0 onCompletedAction) {
         final Observable<T> actualObservable;
-        if (onNextAction == Actions.empty() && onNextAction == Actions.empty() && onNextAction == Actions.empty()) {
+        if (onNextAction == Actions.empty() && onErrorAction == Actions.empty() && onCompletedAction == Actions.empty()) {
             actualObservable = observable.doOnCompleted(onCompletedAction);
         } else {
             actualObservable = observable.observeOn(AndroidSchedulers.mainThread()).doOnCompleted(onCompletedAction);
