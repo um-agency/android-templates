@@ -104,7 +104,7 @@ public final class LoganSquarePreferences {
         @Nullable
         @Override
         @SuppressWarnings("unchecked")
-        public TJsonObject toObject(@NonNull final Type jsonObjectClass, @NonNull final Type stringClass, @Nullable final String storeValue) {
+        public TJsonObject toObject(@NonNull final Type jsonObjectClass, @NonNull final Type storeObjectType, @Nullable final String storeValue) {
             if (storeValue == null) {
                 return null;
             }
