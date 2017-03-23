@@ -55,9 +55,12 @@ public class LoganSquareEnumConverter<T extends Enum & LoganSquareEnum> extends 
         throw new ShouldNotHappenException("Unknown value:" + string);
     }
 
-    @NonNull
+    @Nullable
     @Override
-    public String convertToString(@NonNull final T object) {
+    public String convertToString(@Nullable final T object) {
+        if (object == null) {
+            return null;
+        }
         return object.getValueName();
     }
 

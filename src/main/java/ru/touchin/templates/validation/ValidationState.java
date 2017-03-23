@@ -20,6 +20,8 @@
 package ru.touchin.templates.validation;
 
 
+import android.support.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -69,7 +71,7 @@ public class ValidationState implements Serializable {
      * @return true if objects equals and false otherwise.
      */
     @Override
-    public boolean equals(final Object object) {
+    public boolean equals(@Nullable final Object object) {
         return this == object
                 || !(object == null || getClass() != object.getClass()) && code == ((ValidationState) object).code;
     }

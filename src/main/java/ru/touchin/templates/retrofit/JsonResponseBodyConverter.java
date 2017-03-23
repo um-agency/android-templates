@@ -88,7 +88,7 @@ public abstract class JsonResponseBodyConverter<T> implements Converter<Response
      * @param result Response object;
      * @throws IOException Throws during checking.
      */
-    protected void checkForRequestException(final T result) throws IOException {
+    protected void checkForRequestException(@NonNull final T result) throws IOException {
         //nothing
     }
 

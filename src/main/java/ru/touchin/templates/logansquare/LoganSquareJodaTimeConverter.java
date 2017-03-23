@@ -38,6 +38,7 @@ import ru.touchin.roboswag.core.log.Lc;
  */
 public class LoganSquareJodaTimeConverter implements TypeConverter<DateTime> {
 
+    @Nullable
     @Override
     public DateTime parse(@NonNull final JsonParser jsonParser) throws IOException {
         final String dateString = jsonParser.getValueAsString();
@@ -46,8 +47,8 @@ public class LoganSquareJodaTimeConverter implements TypeConverter<DateTime> {
         }
         try {
             return DateTime.parse(dateString);
-        } catch (RuntimeException e) {
-            Lc.assertion(e);
+        } catch (final RuntimeException exception) {
+            Lc.assertion(exception);
         }
         return null;
     }

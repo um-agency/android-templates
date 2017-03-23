@@ -11,12 +11,13 @@ import java.lang.reflect.Type;
  */
 public final class ConverterUtils {
 
-    private ConverterUtils() {
-        throw new AssertionError();
-    }
-
+    @NonNull
     public static ParameterizedType parameterizedTypeOf(@NonNull final Type type) {
         return new ParameterizedType.ConcreteParameterizedType(type);
+    }
+
+    private ConverterUtils() {
+        throw new AssertionError();
     }
 
 }
