@@ -26,12 +26,16 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 
 import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
+import ru.touchin.roboswag.components.utils.LifecycleBindable;
 import ru.touchin.roboswag.components.utils.Logic;
 import ru.touchin.roboswag.components.utils.UiUtils;
 import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.utils.ServiceBinder;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
+import rx.Completable;
 import rx.Observable;
+import rx.Single;
+import rx.SingleSubscriber;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -48,7 +52,7 @@ import rx.subjects.BehaviorSubject;
  *
  * @param <TLogic> Type of application's {@link Logic}.
  */
-public abstract class TouchinService<TLogic extends Logic> extends Service {
+public abstract class TouchinService<TLogic extends Logic> extends Service implements LifecycleBindable {
 
     //it is needed to hold strong reference to logic
     private TLogic reference;
@@ -96,14 +100,11 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
      *
      * @param observable {@link Observable} to subscribe until onDestroy;
      * @param <T>        Type of emitted by observable items;
-     * @return {@link Observable} which is wrapping source observable to unsubscribe from it onDestroy.
+     * @return {@link Subscription} which is wrapping source observable to unsubscribe from it onDestroy.
      */
     @NonNull
     public <T> Subscription untilDestroy(@NonNull final Observable<T> observable) {
-        final String codePoint = Lc.getCodePoint(this, 1);
-        return untilDestroy(observable, Actions.empty(),
-                throwable -> Lc.assertion(new ShouldNotHappenException("Unexpected error on untilDestroy at " + codePoint, throwable)),
-                Actions.empty());
+        return untilDestroy(observable, Actions.empty(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)), Actions.empty());
     }
 
     /**
@@ -114,27 +115,24 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
      * @param observable   {@link Observable} to subscribe until onDestroy;
      * @param onNextAction Action which will raise on every {@link Subscriber#onNext(Object)} item;
      * @param <T>          Type of emitted by observable items;
-     * @return {@link Observable} which is wrapping source observable to unsubscribe from it onDestroy.
+     * @return {@link Subscription} which is wrapping source observable to unsubscribe from it onDestroy.
      */
     @NonNull
     public <T> Subscription untilDestroy(@NonNull final Observable<T> observable,
                                          @NonNull final Action1<T> onNextAction) {
-        final String codePoint = Lc.getCodePoint(this, 1);
-        return untilDestroy(observable, onNextAction,
-                throwable -> Lc.assertion(new ShouldNotHappenException("Unexpected error on untilDestroy at " + codePoint, throwable)),
-                Actions.empty());
+        return untilDestroy(observable, onNextAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)), Actions.empty());
     }
 
     /**
      * Method should be used to guarantee that observable won't be subscribed after onDestroy.
-     * It is automatically subscribing to observable and calls onNextAction, onErrorAction on observable events.
+     * It is automatically subscribing to observable and calls onNextAction and onErrorAction on observable events.
      * Don't forget to process errors if observable can emit them.
      *
      * @param observable    {@link Observable} to subscribe until onDestroy;
      * @param onNextAction  Action which will raise on every {@link Subscriber#onNext(Object)} item;
      * @param onErrorAction Action which will raise on every {@link Subscriber#onError(Throwable)} throwable;
      * @param <T>           Type of emitted by observable items;
-     * @return {@link Observable} which is wrapping source observable to unsubscribe from it onDestroy.
+     * @return {@link Subscription} which is wrapping source observable to unsubscribe from it onDestroy.
      */
     @NonNull
     public <T> Subscription untilDestroy(@NonNull final Observable<T> observable,
@@ -145,7 +143,7 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
 
     /**
      * Method should be used to guarantee that observable won't be subscribed after onDestroy.
-     * It is automatically subscribing to observable and calls onNextAction, onErrorAction, onCompletedAction on observable events.
+     * It is automatically subscribing to observable and calls onNextAction, onErrorAction and onCompletedAction on observable events.
      * Don't forget to process errors if observable can emit them.
      *
      * @param observable        {@link Observable} to subscribe until onDestroy;
@@ -153,7 +151,7 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
      * @param onErrorAction     Action which will raise on every {@link Subscriber#onError(Throwable)} throwable;
      * @param onCompletedAction Action which will raise at {@link Subscriber#onCompleted()} on completion of observable;
      * @param <T>               Type of emitted by observable items;
-     * @return {@link Observable} which is wrapping source observable to unsubscribe from it onDestroy.
+     * @return {@link Subscription} which is wrapping source observable to unsubscribe from it onDestroy.
      */
     @NonNull
     public <T> Subscription untilDestroy(@NonNull final Observable<T> observable,
@@ -162,6 +160,104 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
                                          @NonNull final Action0 onCompletedAction) {
         return until(observable, isCreatedSubject.map(created -> !created), onNextAction, onErrorAction, onCompletedAction);
     }
+
+    /**
+     * Method should be used to guarantee that single won't be subscribed after onDestroy.
+     * It is automatically subscribing to single.
+     * Don't forget to process errors if single can emit them.
+     *
+     * @param single {@link Single} to subscribe until onDestroy;
+     * @param <T>    Type of emitted by single items;
+     * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    @Override
+    public <T> Subscription untilDestroy(@NonNull final Single<T> single) {
+        return untilDestroy(single, Actions.empty(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
+    }
+
+    /**
+     * Method should be used to guarantee that single won't be subscribed after onDestroy.
+     * It is automatically subscribing to single and calls onSuccessAction on emitted item.
+     * Don't forget to process errors if single can emit them.
+     *
+     * @param single          {@link Single} to subscribe until onDestroy;
+     * @param onSuccessAction Action which will raise on {@link SingleSubscriber#onSuccess(Object)} item;
+     * @param <T>             Type of emitted by single items;
+     * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    @Override
+    public <T> Subscription untilDestroy(@NonNull final Single<T> single, @NonNull final Action1<T> onSuccessAction) {
+        return untilDestroy(single, onSuccessAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
+    }
+
+    /**
+     * Method should be used to guarantee that single won't be subscribed after onDestroy.
+     * It is automatically subscribing to single and calls onSuccessAction and onErrorAction on single events.
+     * Don't forget to process errors if single can emit them.
+     *
+     * @param single          {@link Single} to subscribe until onDestroy;
+     * @param onSuccessAction Action which will raise on {@link SingleSubscriber#onSuccess(Object)} item;
+     * @param onErrorAction   Action which will raise on every {@link SingleSubscriber#onError(Throwable)} throwable;
+     * @param <T>             Type of emitted by single items;
+     * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    @Override
+    public <T> Subscription untilDestroy(@NonNull final Single<T> single,
+                                         @NonNull final Action1<T> onSuccessAction,
+                                         @NonNull final Action1<Throwable> onErrorAction) {
+        return until(single.toObservable(), isCreatedSubject.map(created -> !created), onSuccessAction, onErrorAction, Actions.empty());
+    }
+
+    /**
+     * Method should be used to guarantee that completable won't be subscribed after onDestroy.
+     * It is automatically subscribing to completable.
+     * Don't forget to process errors if completable can emit them.
+     *
+     * @param completable {@link Completable} to subscribe until onDestroy;
+     * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    @Override
+    public Subscription untilDestroy(@NonNull final Completable completable) {
+        return untilDestroy(completable, Actions.empty(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
+    }
+
+    /**
+     * Method should be used to guarantee that completable won't be subscribed after onDestroy.
+     * It is automatically subscribing to completable and calls onCompletedAction on complete.
+     * Don't forget to process errors if completable can emit them.
+     *
+     * @param completable       {@link Completable} to subscribe until onDestroy;
+     * @param onCompletedAction Action which will raise on every {@link Completable.CompletableSubscriber#onCompleted()} item;
+     * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    @Override
+    public Subscription untilDestroy(@NonNull final Completable completable, @NonNull final Action0 onCompletedAction) {
+        return untilDestroy(completable, onCompletedAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
+    }
+
+    /**
+     * Method should be used to guarantee that completable won't be subscribed after onDestroy.
+     * It is automatically subscribing to completable and calls onCompletedAction and onErrorAction on completable events.
+     * Don't forget to process errors if completable can emit them.
+     *
+     * @param completable       {@link Single} to subscribe until onDestroy;
+     * @param onCompletedAction Action which will raise on {@link Completable.CompletableSubscriber#onCompleted()} item;
+     * @param onErrorAction     Action which will raise on every {@link SingleSubscriber#onError(Throwable)} throwable;
+     * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    @Override
+    public Subscription untilDestroy(@NonNull final Completable completable,
+                                     @NonNull final Action0 onCompletedAction,
+                                     @NonNull final Action1<Throwable> onErrorAction) {
+        return until(completable.toObservable(), isCreatedSubject.map(created -> !created), Actions.empty(), onErrorAction, onCompletedAction);
+    }
+
 
     @NonNull
     private <T> Subscription until(@NonNull final Observable<T> observable,
@@ -209,6 +305,11 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
         postHandler.removeCallbacksAndMessages(null);
         isCreatedSubject.onNext(false);
         super.onDestroy();
+    }
+
+    @NonNull
+    private Action1<Throwable> getActionThrowableForAssertion(@NonNull final String codePoint) {
+        return throwable -> Lc.assertion(new ShouldNotHappenException("Unexpected error on untilDestroy at " + codePoint, throwable));
     }
 
 }
