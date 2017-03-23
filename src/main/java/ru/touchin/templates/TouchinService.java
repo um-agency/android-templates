@@ -247,7 +247,7 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      *
      * @param completable       {@link Single} to subscribe until onDestroy;
      * @param onCompletedAction Action which will raise on {@link Completable.CompletableSubscriber#onCompleted()} item;
-     * @param onErrorAction     Action which will raise on every {@link SingleSubscriber#onError(Throwable)} throwable;
+     * @param onErrorAction     Action which will raise on every {@link Completable.CompletableSubscriber#onError(Throwable)} throwable;
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
