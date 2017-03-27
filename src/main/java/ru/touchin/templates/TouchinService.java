@@ -26,7 +26,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 
 import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
-import ru.touchin.roboswag.components.utils.LifecycleBindable;
 import ru.touchin.roboswag.components.utils.Logic;
 import ru.touchin.roboswag.components.utils.UiUtils;
 import ru.touchin.roboswag.core.log.Lc;
