@@ -52,7 +52,7 @@ import rx.subjects.BehaviorSubject;
  *
  * @param <TLogic> Type of application's {@link Logic}.
  */
-public abstract class TouchinService<TLogic extends Logic> extends Service implements LifecycleBindable {
+public abstract class TouchinService<TLogic extends Logic> extends Service {
 
     //it is needed to hold strong reference to logic
     private TLogic reference;
@@ -171,7 +171,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public <T> Subscription untilDestroy(@NonNull final Single<T> single) {
         return untilDestroy(single, Actions.empty(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -187,7 +186,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public <T> Subscription untilDestroy(@NonNull final Single<T> single, @NonNull final Action1<T> onSuccessAction) {
         return untilDestroy(single, onSuccessAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -204,7 +202,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public <T> Subscription untilDestroy(@NonNull final Single<T> single,
                                          @NonNull final Action1<T> onSuccessAction,
                                          @NonNull final Action1<Throwable> onErrorAction) {
@@ -220,7 +217,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public Subscription untilDestroy(@NonNull final Completable completable) {
         return untilDestroy(completable, Actions.empty(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -235,7 +231,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public Subscription untilDestroy(@NonNull final Completable completable, @NonNull final Action0 onCompletedAction) {
         return untilDestroy(completable, onCompletedAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -251,7 +246,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public Subscription untilDestroy(@NonNull final Completable completable,
                                      @NonNull final Action0 onCompletedAction,
                                      @NonNull final Action1<Throwable> onErrorAction) {
