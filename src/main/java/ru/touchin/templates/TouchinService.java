@@ -38,6 +38,7 @@ import rx.SingleSubscriber;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.OnErrorThrowable;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Actions;
@@ -263,7 +264,15 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
             actualObservable = observable.observeOn(AndroidSchedulers.mainThread())
                     .doOnCompleted(onCompletedAction)
                     .doOnNext(onNextAction)
-                    .onErrorResumeNext(Observable.empty());
+                    .onErrorResumeNext(throwable -> {
+                        final boolean isRxError = throwable instanceof OnErrorThrowable;
+                        if ((!isRxError && throwable instanceof RuntimeException)
+                                || (isRxError && throwable.getCause() instanceof RuntimeException)) {
+                            Lc.assertion(throwable);
+                        }
+                        onErrorAction.call(throwable);
+                        return Observable.empty();
+                    });
         }
 
         return isCreatedSubject.first()
