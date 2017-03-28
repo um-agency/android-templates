@@ -251,7 +251,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
         return until(completable.toObservable(), isCreatedSubject.map(created -> !created), Actions.empty(), onErrorAction, onCompletedAction);
     }
 
-
     @NonNull
     private <T> Subscription until(@NonNull final Observable<T> observable,
                                    @NonNull final Observable<Boolean> conditionSubject,
@@ -262,20 +261,22 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
         if (onNextAction == Actions.empty() && onErrorAction == (Action1) Actions.empty() && onCompletedAction == Actions.empty()) {
             actualObservable = observable;
         } else {
-            actualObservable = observable.observeOn(AndroidSchedulers.mainThread()).doOnCompleted(onCompletedAction);
+            actualObservable = observable.observeOn(AndroidSchedulers.mainThread())
+                    .doOnCompleted(onCompletedAction)
+                    .doOnNext(onNextAction)
+                    .doOnError(onErrorAction);
         }
 
         return isCreatedSubject.first()
                 .switchMap(created -> created ? actualObservable : Observable.empty())
                 .takeUntil(conditionSubject.filter(condition -> condition))
-                .doOnNext(onNextAction)
-                .doOnError(throwable -> {
+                .onErrorResumeNext(throwable -> {
                     final boolean isRxError = throwable instanceof OnErrorThrowable;
                     if ((!isRxError && throwable instanceof RuntimeException)
                             || (isRxError && throwable.getCause() instanceof RuntimeException)) {
                         Lc.assertion(throwable);
                     }
-                    onErrorAction.call(throwable);
+                    return Observable.empty();
                 })
                 .subscribe();
     }
