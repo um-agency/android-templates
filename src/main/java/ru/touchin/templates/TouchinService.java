@@ -260,7 +260,7 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
                                    @NonNull final Action0 onCompletedAction) {
         final Observable<T> actualObservable;
         if (onNextAction == Actions.empty() && onErrorAction == (Action1) Actions.empty() && onCompletedAction == Actions.empty()) {
-            actualObservable = observable.doOnCompleted(onCompletedAction);
+            actualObservable = observable;
         } else {
             actualObservable = observable.observeOn(AndroidSchedulers.mainThread()).doOnCompleted(onCompletedAction);
         }
@@ -268,14 +268,16 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
         return isCreatedSubject.first()
                 .switchMap(created -> created ? actualObservable : Observable.empty())
                 .takeUntil(conditionSubject.filter(condition -> condition))
-                .subscribe(onNextAction, throwable -> {
+                .doOnNext(onNextAction)
+                .doOnError(throwable -> {
                     final boolean isRxError = throwable instanceof OnErrorThrowable;
                     if ((!isRxError && throwable instanceof RuntimeException)
                             || (isRxError && throwable.getCause() instanceof RuntimeException)) {
                         Lc.assertion(throwable);
                     }
                     onErrorAction.call(throwable);
-                });
+                })
+                .subscribe();
     }
 
     @SuppressWarnings("CPD-END")
