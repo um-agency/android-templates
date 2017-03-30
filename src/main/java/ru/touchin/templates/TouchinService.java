@@ -26,7 +26,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 
 import ru.touchin.roboswag.components.navigation.activities.ViewControllerActivity;
-import ru.touchin.roboswag.components.utils.LifecycleBindable;
 import ru.touchin.roboswag.components.utils.Logic;
 import ru.touchin.roboswag.components.utils.UiUtils;
 import ru.touchin.roboswag.core.log.Lc;
@@ -52,7 +51,7 @@ import rx.subjects.BehaviorSubject;
  *
  * @param <TLogic> Type of application's {@link Logic}.
  */
-public abstract class TouchinService<TLogic extends Logic> extends Service implements LifecycleBindable {
+public abstract class TouchinService<TLogic extends Logic> extends Service {
 
     //it is needed to hold strong reference to logic
     private TLogic reference;
@@ -171,7 +170,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public <T> Subscription untilDestroy(@NonNull final Single<T> single) {
         return untilDestroy(single, Actions.empty(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -187,7 +185,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public <T> Subscription untilDestroy(@NonNull final Single<T> single, @NonNull final Action1<T> onSuccessAction) {
         return untilDestroy(single, onSuccessAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -204,7 +201,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source single to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public <T> Subscription untilDestroy(@NonNull final Single<T> single,
                                          @NonNull final Action1<T> onSuccessAction,
                                          @NonNull final Action1<Throwable> onErrorAction) {
@@ -220,7 +216,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public Subscription untilDestroy(@NonNull final Completable completable) {
         return untilDestroy(completable, Actions.empty(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -235,7 +230,6 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public Subscription untilDestroy(@NonNull final Completable completable, @NonNull final Action0 onCompletedAction) {
         return untilDestroy(completable, onCompletedAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
     }
@@ -251,13 +245,11 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
-    @Override
     public Subscription untilDestroy(@NonNull final Completable completable,
                                      @NonNull final Action0 onCompletedAction,
                                      @NonNull final Action1<Throwable> onErrorAction) {
         return until(completable.toObservable(), isCreatedSubject.map(created -> !created), Actions.empty(), onErrorAction, onCompletedAction);
     }
-
 
     @NonNull
     private <T> Subscription until(@NonNull final Observable<T> observable,
@@ -267,22 +259,26 @@ public abstract class TouchinService<TLogic extends Logic> extends Service imple
                                    @NonNull final Action0 onCompletedAction) {
         final Observable<T> actualObservable;
         if (onNextAction == Actions.empty() && onErrorAction == (Action1) Actions.empty() && onCompletedAction == Actions.empty()) {
-            actualObservable = observable.doOnCompleted(onCompletedAction);
+            actualObservable = observable;
         } else {
-            actualObservable = observable.observeOn(AndroidSchedulers.mainThread()).doOnCompleted(onCompletedAction);
+            actualObservable = observable.observeOn(AndroidSchedulers.mainThread())
+                    .doOnCompleted(onCompletedAction)
+                    .doOnNext(onNextAction)
+                    .doOnError(onErrorAction);
         }
 
         return isCreatedSubject.first()
                 .switchMap(created -> created ? actualObservable : Observable.empty())
                 .takeUntil(conditionSubject.filter(condition -> condition))
-                .subscribe(onNextAction, throwable -> {
+                .onErrorResumeNext(throwable -> {
                     final boolean isRxError = throwable instanceof OnErrorThrowable;
                     if ((!isRxError && throwable instanceof RuntimeException)
                             || (isRxError && throwable.getCause() instanceof RuntimeException)) {
                         Lc.assertion(throwable);
                     }
-                    onErrorAction.call(throwable);
-                });
+                    return Observable.empty();
+                })
+                .subscribe();
     }
 
     @SuppressWarnings("CPD-END")
