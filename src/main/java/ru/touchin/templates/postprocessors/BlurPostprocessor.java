@@ -1,4 +1,3 @@
-package ru.touchin.templates.postprocessors;
 /**
  * Copyright (C) 2015 Wasabeef
  * <p>
@@ -14,6 +13,8 @@ package ru.touchin.templates.postprocessors;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package ru.touchin.templates.postprocessors;
 
 import android.content.Context;
 import android.graphics.Bitmap;
