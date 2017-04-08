@@ -99,7 +99,7 @@ public abstract class TouchinApp extends Application {
             try {
                 Stetho.initializeWithDefaults(this);
             } catch (final NoClassDefFoundError error) {
-                Lc.e("Stetho initialization error! Did you forget to add stetho dependency to your build.gradle?");
+                Lc.e("Stetho initialization error! Did you forget to add compile 'com.facebook.stetho:stetho:+' to your build.gradle?");
             }
         } else {
             try {
@@ -108,8 +108,12 @@ public abstract class TouchinApp extends Application {
                 Fabric.getLogger().setLogLevel(Log.ERROR);
                 Lc.initialize(new CrashlyticsLogProcessor(crashlytics), false);
             } catch (final NoClassDefFoundError error) {
-                throw new ShouldNotHappenException("Crashlytics initialization error! "
-                        + "Did you forget to add crashlytics dependency to your build.gradle?", error);
+                Lc.initialize(new ConsoleLogProcessor(LcLevel.INFO), false);
+                Lc.e("Crashlytics initialization error! Did you forget to add\n"
+                        + "compile('com.crashlytics.sdk.android:crashlytics:+@aar') {\n"
+                        + "        transitive = true;\n"
+                        + "}\n"
+                        + "to your build.gradle?", error);
             }
         }
     }
