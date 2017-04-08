@@ -99,7 +99,7 @@ public abstract class TouchinApp extends Application {
             try {
                 Stetho.initializeWithDefaults(this);
             } catch (final NoClassDefFoundError error) {
-                Lc.e("Stetho initialization error! Did you forget to add compile 'com.facebook.stetho:stetho:+' to your build.gradle?");
+                Lc.e("Stetho initialization error! Did you forget to add debugCompile 'com.facebook.stetho:stetho:+' to your build.gradle?");
             }
         } else {
             try {
