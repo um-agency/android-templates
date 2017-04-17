@@ -34,6 +34,7 @@ import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.observables.collections.Change;
 import ru.touchin.roboswag.core.observables.collections.ObservableCollection;
 import ru.touchin.roboswag.core.observables.collections.ObservableList;
+import rx.Completable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
@@ -86,7 +87,7 @@ public abstract class Chat<TOutgoingMessage> {
                                 return insertedMessages.isEmpty() ? Observable.empty() : Observable.from(insertedMessages);
                             }))
                             //observe on some scheduler?
-                            .flatMap(this::internalSendMessage);
+                            .flatMap(message -> internalSendMessage(message).toObservable());
                 });
     }
 
@@ -188,9 +189,9 @@ public abstract class Chat<TOutgoingMessage> {
     }
 
     @NonNull
-    private Observable<?> internalSendMessage(@NonNull final TOutgoingMessage message) {
+    private Completable internalSendMessage(@NonNull final TOutgoingMessage message) {
         final SubscriptionHolder subscriptionHolder = new SubscriptionHolder();
-        return Observable
+        return Completable
                 .create(subscriber -> {
                     subscriptionHolder.subscription = sendingScheduler.createWorker().schedule(() -> {
                         final CountDownLatch blocker = new CountDownLatch(1);

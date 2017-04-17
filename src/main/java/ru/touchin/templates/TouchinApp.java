@@ -29,6 +29,7 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.facebook.stetho.Stetho;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -95,11 +96,25 @@ public abstract class TouchinApp extends Application {
             TypefacedTextView.setInDebugMode();
             Lc.initialize(new ConsoleLogProcessor(LcLevel.VERBOSE), true);
             UiUtils.UI_LIFECYCLE_LC_GROUP.disable();
+            try {
+                Stetho.initializeWithDefaults(this);
+            } catch (final NoClassDefFoundError error) {
+                Lc.e("Stetho initialization error! Did you forget to add debugCompile 'com.facebook.stetho:stetho:+' to your build.gradle?");
+            }
         } else {
-            final Crashlytics crashlytics = new Crashlytics();
-            Fabric.with(this, crashlytics);
-            Fabric.getLogger().setLogLevel(Log.ERROR);
-            Lc.initialize(new CrashlyticsLogProcessor(crashlytics), false);
+            try {
+                final Crashlytics crashlytics = new Crashlytics();
+                Fabric.with(this, crashlytics);
+                Fabric.getLogger().setLogLevel(Log.ERROR);
+                Lc.initialize(new CrashlyticsLogProcessor(crashlytics), false);
+            } catch (final NoClassDefFoundError error) {
+                Lc.initialize(new ConsoleLogProcessor(LcLevel.INFO), false);
+                Lc.e("Crashlytics initialization error! Did you forget to add\n"
+                        + "compile('com.crashlytics.sdk.android:crashlytics:+@aar') {\n"
+                        + "        transitive = true;\n"
+                        + "}\n"
+                        + "to your build.gradle?", error);
+            }
         }
     }
 

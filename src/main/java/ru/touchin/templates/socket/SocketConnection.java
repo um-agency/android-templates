@@ -85,29 +85,21 @@ public abstract class SocketConnection {
     @NonNull
     private Observable<Pair<Socket, State>> createSocketObservable() {
         return Observable
-                .<Socket>create(subscriber -> {
-                    try {
-                        final Socket socket = createSocket();
-                        subscriber.onNext(socket);
-                    } catch (final Exception exception) {
-                        Lc.assertion(exception);
-                    }
-                    subscriber.onCompleted();
-                })
+                .fromCallable(this::createSocket)
                 .switchMap(socket -> Observable
-                        .<Pair<Socket, State>>create(subscriber -> {
-                            socket.on(Socket.EVENT_CONNECT, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTED)));
-                            socket.on(Socket.EVENT_CONNECTING, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTING)));
-                            socket.on(Socket.EVENT_CONNECT_ERROR, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
-                            socket.on(Socket.EVENT_CONNECT_TIMEOUT, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
-                            socket.on(Socket.EVENT_DISCONNECT, args -> subscriber.onNext(new Pair<>(socket, State.DISCONNECTED)));
-                            socket.on(Socket.EVENT_RECONNECT_ATTEMPT, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTING)));
-                            socket.on(Socket.EVENT_RECONNECTING, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTING)));
-                            socket.on(Socket.EVENT_RECONNECT, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTED)));
-                            socket.on(Socket.EVENT_RECONNECT_ERROR, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
-                            socket.on(Socket.EVENT_RECONNECT_FAILED, args -> subscriber.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
-                            subscriber.onNext(new Pair<>(socket, State.DISCONNECTED));
-                        })
+                        .<Pair<Socket, State>>create(emitter -> {
+                            socket.on(Socket.EVENT_CONNECT, args -> emitter.onNext(new Pair<>(socket, State.CONNECTED)));
+                            socket.on(Socket.EVENT_CONNECTING, args -> emitter.onNext(new Pair<>(socket, State.CONNECTING)));
+                            socket.on(Socket.EVENT_CONNECT_ERROR, args -> emitter.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
+                            socket.on(Socket.EVENT_CONNECT_TIMEOUT, args -> emitter.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
+                            socket.on(Socket.EVENT_DISCONNECT, args -> emitter.onNext(new Pair<>(socket, State.DISCONNECTED)));
+                            socket.on(Socket.EVENT_RECONNECT_ATTEMPT, args -> emitter.onNext(new Pair<>(socket, State.CONNECTING)));
+                            socket.on(Socket.EVENT_RECONNECTING, args -> emitter.onNext(new Pair<>(socket, State.CONNECTING)));
+                            socket.on(Socket.EVENT_RECONNECT, args -> emitter.onNext(new Pair<>(socket, State.CONNECTED)));
+                            socket.on(Socket.EVENT_RECONNECT_ERROR, args -> emitter.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
+                            socket.on(Socket.EVENT_RECONNECT_FAILED, args -> emitter.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
+                            emitter.onNext(new Pair<>(socket, State.DISCONNECTED));
+                        }, rx.Emitter.BackpressureMode.LATEST)
                         .distinctUntilChanged()
                         .doOnSubscribe(() -> {
                             if (autoConnectOnAnySubscription) {
@@ -139,13 +131,13 @@ public abstract class SocketConnection {
     //unchecked: it's OK as we are caching raw observables
     protected <T> Observable<T> observeEvent(@NonNull final SocketEvent<T> socketEvent) {
         return Observable.switchOnNext(Observable
-                .<Observable<T>>create(observableSubscriber -> {
+                .fromCallable(() -> {
                     Observable<T> result = (Observable<T>) messagesObservableCache.get(socketEvent);
                     if (result == null) {
                         result = getSocket()
                                 .switchMap(socket -> Observable
-                                        .<T>create(subscriber ->
-                                                socket.on(socketEvent.getName(), new SocketListener<>(socketEvent, subscriber::onNext)))
+                                        .<T>create(emitter -> socket.on(socketEvent.getName(), new SocketListener<>(socketEvent, emitter::onNext)),
+                                                rx.Emitter.BackpressureMode.BUFFER)
                                         .unsubscribeOn(scheduler)
                                         .doOnUnsubscribe(() -> {
                                             socket.off(socketEvent.getName());
@@ -155,8 +147,7 @@ public abstract class SocketConnection {
                                 .refCount();
                         messagesObservableCache.put(socketEvent, result);
                     }
-                    observableSubscriber.onNext(result);
-                    observableSubscriber.onCompleted();
+                    return result;
                 })
                 .subscribeOn(scheduler));
     }
