@@ -24,12 +24,12 @@ import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import ru.touchin.templates.validation.ValidationState;
 import ru.touchin.templates.validation.ViewWithError;
 import ru.touchin.templates.validation.validators.Validator;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
@@ -61,7 +61,7 @@ public class ValidationController
      */
     @NonNull
     public Observable<?> modelAndViewUpdating(@Nullable final Observable<TWrapperModel> viewStateObservable,
-                                              @NonNull final Action1<TWrapperModel> updateViewAction,
+                                              @NonNull final Consumer<TWrapperModel> updateViewAction,
                                               @NonNull final ViewWithError viewWithError) {
         final Observable<?> stateObservable = viewStateObservable != null
                 ? viewStateObservable.doOnNext(flag -> getValidator().getWrapperModel().set(flag))

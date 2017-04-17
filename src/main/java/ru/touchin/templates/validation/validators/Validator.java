@@ -23,11 +23,11 @@ import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 
+import io.reactivex.Observable;
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
 import ru.touchin.roboswag.core.utils.pairs.HalfNullablePair;
 import ru.touchin.templates.validation.ValidationState;
-import rx.Observable;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.

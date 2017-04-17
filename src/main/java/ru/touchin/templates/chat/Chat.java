@@ -30,18 +30,17 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.observables.collections.Change;
 import ru.touchin.roboswag.core.observables.collections.ObservableCollection;
 import ru.touchin.roboswag.core.observables.collections.ObservableList;
-import rx.Completable;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.functions.Actions;
-import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
 
 /**
  * Created by Gavriil Sitnikov on 12/05/16.
@@ -58,13 +57,13 @@ public abstract class Chat<TOutgoingMessage> {
     @NonNull
     private final PublishSubject<?> retrySendingRequest = PublishSubject.create();
     @NonNull
-    private final BehaviorSubject<Boolean> isSendingInError = BehaviorSubject.create(false);
+    private final BehaviorSubject<Boolean> isSendingInError = BehaviorSubject.createDefault(false);
     @NonNull
     private final Scheduler sendingScheduler = Schedulers.from(Executors.newSingleThreadExecutor());
     @NonNull
     private final Observable<?> messagesToSendObservable;
     @Nullable
-    private Subscription activationSubscription;
+    private Disposable activationSubscription;
 
     public Chat(@Nullable final Collection<TOutgoingMessage> messagesToSend) {
         if (messagesToSend != null) {
@@ -72,11 +71,11 @@ public abstract class Chat<TOutgoingMessage> {
         }
 
         messagesToSendObservable = sendingMessages.observeItems()
-                .first()
-                .concatMap(initialMessages -> {
+                .firstOrError()
+                .flatMapObservable(initialMessages -> {
                     final List<TOutgoingMessage> reversedMessages = new ArrayList<>(initialMessages);
                     Collections.reverse(reversedMessages);
-                    return Observable.from(reversedMessages)
+                    return Observable.fromIterable(reversedMessages)
                             .concatWith(sendingMessages.observeChanges().concatMap(changes -> {
                                 final Collection<TOutgoingMessage> insertedMessages = new ArrayList<>();
                                 for (final Change<TOutgoingMessage> change : changes.getChanges()) {
@@ -84,7 +83,7 @@ public abstract class Chat<TOutgoingMessage> {
                                         insertedMessages.addAll(change.getChangedItems());
                                     }
                                 }
-                                return insertedMessages.isEmpty() ? Observable.empty() : Observable.from(insertedMessages);
+                                return insertedMessages.isEmpty() ? Observable.empty() : Observable.fromIterable(insertedMessages);
                             }))
                             //observe on some scheduler?
                             .flatMap(message -> internalSendMessage(message).toObservable());
@@ -184,7 +183,7 @@ public abstract class Chat<TOutgoingMessage> {
             Lc.assertion("Chat not activated yet");
             return;
         }
-        activationSubscription.unsubscribe();
+        activationSubscription.dispose();
         activationSubscription = null;
     }
 
@@ -195,33 +194,34 @@ public abstract class Chat<TOutgoingMessage> {
                 .create(subscriber -> {
                     subscriptionHolder.subscription = sendingScheduler.createWorker().schedule(() -> {
                         final CountDownLatch blocker = new CountDownLatch(1);
-                        final Subscription sendSubscription = Observable
+                        final Disposable sendSubscription = Observable
                                 .combineLatest(isMessageInCacheObservable(message), isMessageInActualObservable(message),
                                         (messageInCache, messageInActual) -> !messageInCache && !messageInActual)
                                 .subscribeOn(Schedulers.computation())
-                                .first()
-                                .switchMap(shouldSendMessage -> shouldSendMessage
-                                        ? createSendMessageObservable(message).ignoreElements() : Observable.empty())
+                                .firstOrError()
+                                .flatMapCompletable(shouldSendMessage -> shouldSendMessage
+                                        ? createSendMessageObservable(message).ignoreElements() : Completable.complete())
                                 .retryWhen(attempts -> attempts.switchMap(ignored -> {
                                     isSendingInError.onNext(true);
                                     return Observable
                                             .merge(retrySendingRequest, Observable.timer(RETRY_SENDING_DELAY, TimeUnit.MILLISECONDS))
-                                            .first()
-                                            .doOnCompleted(() -> isSendingInError.onNext(false));
+                                            .firstOrError()
+                                            .doOnSuccess(ignored2 -> isSendingInError.onNext(false))
+                                            .toFlowable();
                                 }))
-                                .doOnUnsubscribe(blocker::countDown)
-                                .subscribe(Actions.empty(), Lc::assertion, () -> sendingMessages.remove(message));
+                                .doOnDispose(blocker::countDown)
+                                .subscribe(() -> sendingMessages.remove(message), Lc::assertion);
                         try {
                             blocker.await();
                         } catch (final InterruptedException exception) {
-                            sendSubscription.unsubscribe();
+                            sendSubscription.dispose();
                         }
-                        subscriber.onCompleted();
+                        subscriber.onComplete();
                     });
                 })
-                .doOnUnsubscribe(() -> {
-                    if (subscriptionHolder.subscription != null && !subscriptionHolder.subscription.isUnsubscribed()) {
-                        subscriptionHolder.subscription.unsubscribe();
+                .doOnDispose(() -> {
+                    if (subscriptionHolder.subscription != null && !subscriptionHolder.subscription.isDisposed()) {
+                        subscriptionHolder.subscription.dispose();
                     }
                 });
     }
@@ -229,7 +229,7 @@ public abstract class Chat<TOutgoingMessage> {
     private class SubscriptionHolder {
 
         @Nullable
-        private Subscription subscription;
+        private Disposable subscription;
 
     }
 

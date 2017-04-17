@@ -33,9 +33,9 @@ import android.text.TextUtils;
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
+import io.reactivex.Observable;
 import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.observables.RxAndroidUtils;
-import rx.Observable;
 
 /**
  * Utility class that is providing common methods related to android device.

@@ -29,14 +29,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.templates.ApiModel;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Gavriil Sitnikov on 29/02/16.
@@ -99,14 +99,14 @@ public abstract class SocketConnection {
                             socket.on(Socket.EVENT_RECONNECT_ERROR, args -> emitter.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
                             socket.on(Socket.EVENT_RECONNECT_FAILED, args -> emitter.onNext(new Pair<>(socket, State.CONNECTION_ERROR)));
                             emitter.onNext(new Pair<>(socket, State.DISCONNECTED));
-                        }, rx.Emitter.BackpressureMode.LATEST)
+                        })
                         .distinctUntilChanged()
-                        .doOnSubscribe(() -> {
+                        .doOnSubscribe(disposable -> {
                             if (autoConnectOnAnySubscription) {
                                 socket.connect();
                             }
                         })
-                        .doOnUnsubscribe(() -> {
+                        .doOnDispose(() -> {
                             if (autoConnectOnAnySubscription) {
                                 socket.disconnect();
                             }
@@ -136,10 +136,9 @@ public abstract class SocketConnection {
                     if (result == null) {
                         result = getSocket()
                                 .switchMap(socket -> Observable
-                                        .<T>create(emitter -> socket.on(socketEvent.getName(), new SocketListener<>(socketEvent, emitter::onNext)),
-                                                rx.Emitter.BackpressureMode.BUFFER)
+                                        .<T>create(emitter -> socket.on(socketEvent.getName(), new SocketListener<>(socketEvent, emitter::onNext)))
                                         .unsubscribeOn(scheduler)
-                                        .doOnUnsubscribe(() -> {
+                                        .doOnDispose(() -> {
                                             socket.off(socketEvent.getName());
                                             messagesObservableCache.remove(socketEvent);
                                         }))
@@ -172,9 +171,9 @@ public abstract class SocketConnection {
         @NonNull
         private final SocketEvent<TMessage> socketEvent;
         @NonNull
-        private final Action1<TMessage> onMessageAction;
+        private final Consumer<TMessage> onMessageAction;
 
-        public SocketListener(@NonNull final SocketEvent<TMessage> socketEvent, @NonNull final Action1<TMessage> onMessageAction) {
+        public SocketListener(@NonNull final SocketEvent<TMessage> socketEvent, @NonNull final Consumer<TMessage> onMessageAction) {
             this.socketEvent = socketEvent;
             this.onMessageAction = onMessageAction;
         }
@@ -190,7 +189,7 @@ public abstract class SocketConnection {
                 if (socketEvent.getEventDataHandler() != null) {
                     socketEvent.getEventDataHandler().handleMessage(message);
                 }
-                onMessageAction.call(message);
+                onMessageAction.accept(message);
             } catch (final RuntimeException throwable) {
                 Lc.assertion(throwable);
             } catch (final JsonProcessingException exception) {

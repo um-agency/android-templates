@@ -4,9 +4,9 @@ import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 
+import io.reactivex.Observable;
 import ru.touchin.templates.validation.ValidationState;
 import ru.touchin.templates.validation.validators.Validator;
-import rx.Observable;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.

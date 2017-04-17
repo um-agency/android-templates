@@ -32,7 +32,7 @@ import java.util.List;
 import ru.touchin.roboswag.components.utils.storables.PreferenceStore;
 import ru.touchin.roboswag.core.observables.storable.Converter;
 import ru.touchin.roboswag.core.observables.storable.Storable;
-import ru.touchin.roboswag.core.observables.storable.concrete.NonNullStorable;
+import ru.touchin.roboswag.core.observables.storable.NonNullStorable;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 
 /**

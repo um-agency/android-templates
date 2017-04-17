@@ -38,6 +38,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.Scheduler;
+import io.reactivex.android.plugins.RxAndroidPlugins;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 import ru.touchin.roboswag.components.navigation.fragments.ViewControllerFragment;
 import ru.touchin.roboswag.components.utils.UiUtils;
 import ru.touchin.roboswag.components.views.TypefacedEditText;
@@ -48,13 +53,6 @@ import ru.touchin.roboswag.core.log.LcGroup;
 import ru.touchin.roboswag.core.log.LcLevel;
 import ru.touchin.roboswag.core.log.LogProcessor;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.plugins.RxAndroidPlugins;
-import rx.android.plugins.RxAndroidSchedulersHook;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.subscriptions.Subscriptions;
 
 /**
  * Created by Gavriil Sitnikov on 10/03/16.
@@ -81,13 +79,7 @@ public abstract class TouchinApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
-            @NonNull
-            @Override
-            public Scheduler getMainThreadScheduler() {
-                return new MainThreadScheduler();
-            }
-        });
+        RxAndroidPlugins.setMainThreadSchedulerHandler(schedulerCallable -> MainThreadScheduler.INSTANCE);
         JodaTimeAndroid.init(this);
         if (isDebug()) {
             enableStrictMode();
@@ -187,6 +179,8 @@ public abstract class TouchinApp extends Application {
      */
     private static class MainThreadScheduler extends Scheduler {
 
+        public static final MainThreadScheduler INSTANCE = new MainThreadScheduler();
+
         @NonNull
         @Override
         public Worker createWorker() {
@@ -200,28 +194,28 @@ public abstract class TouchinApp extends Application {
 
             @NonNull
             @Override
-            public Subscription schedule(@NonNull final Action0 action) {
+            public Disposable schedule(@NonNull final Runnable action) {
                 if (Looper.getMainLooper().equals(Looper.myLooper())) {
-                    action.call();
-                    return Subscriptions.unsubscribed();
+                    action.run();
+                    return Disposables.disposed();
                 }
                 return parentWorker.schedule(action);
             }
 
             @NonNull
             @Override
-            public Subscription schedule(@NonNull final Action0 action, final long delayTime, @NonNull final TimeUnit unit) {
+            public Disposable schedule(@NonNull final Runnable action, final long delayTime, @NonNull final TimeUnit unit) {
                 return parentWorker.schedule(action, delayTime, unit);
             }
 
             @Override
-            public void unsubscribe() {
-                parentWorker.unsubscribe();
+            public void dispose() {
+                parentWorker.dispose();
             }
 
             @Override
-            public boolean isUnsubscribed() {
-                return parentWorker.isUnsubscribed();
+            public boolean isDisposed() {
+                return parentWorker.isDisposed();
             }
 
         }

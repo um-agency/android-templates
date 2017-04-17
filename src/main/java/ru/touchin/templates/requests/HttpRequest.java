@@ -28,6 +28,8 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -40,8 +42,6 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.log.LcLevel;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Gavriil Sitnikov on 13/11/2015.
@@ -208,7 +208,7 @@ public abstract class HttpRequest<T> {
                         .fromCallable(() -> executeSyncInternal(requestController))
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
-                        .doOnUnsubscribe(requestController.call::cancel));
+                        .doOnDispose(requestController.call::cancel));
     }
 
     /**

@@ -25,10 +25,10 @@ import android.text.TextUtils;
 
 import java.io.Serializable;
 
+import io.reactivex.Observable;
 import ru.touchin.roboswag.core.utils.pairs.NonNullPair;
 import ru.touchin.templates.validation.ValidationState;
 import ru.touchin.templates.validation.validators.EditTextValidator;
-import rx.Observable;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.

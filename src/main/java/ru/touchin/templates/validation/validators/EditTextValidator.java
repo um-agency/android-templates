@@ -24,13 +24,13 @@ import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
 import ru.touchin.roboswag.core.utils.pairs.HalfNullablePair;
 import ru.touchin.templates.validation.ValidationFunc;
 import ru.touchin.templates.validation.ValidationState;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.
