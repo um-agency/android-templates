@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import java.io.Serializable;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
 import ru.touchin.roboswag.core.utils.pairs.HalfNullablePair;
@@ -54,6 +55,7 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
 
     /**
      * This method converts {@link TWrapperModel} into a {@link TModel}.
+     *
      * @param wrapperModel - not null value that should be converted into a {@link TModel} object.
      * @return converted wrapperModel into a {@link TModel}.
      * @throws Throwable for the cases when converting cannot be processed.
@@ -63,6 +65,7 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
 
     /**
      * Call this method to get {@link Changeable} with {@link TWrapperModel} inside it that should be connected to its bounded view.
+     *
      * @return {@link Changeable} with {@link TWrapperModel}.
      */
     @NonNull
@@ -72,6 +75,7 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
 
     /**
      * Returns current {@link ValidationState} or its successor. Needed to connect with bounded view and react to this state changes.
+     *
      * @return current validation state.
      */
     @NonNull
@@ -82,6 +86,7 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
     /**
      * This method needed to get {@link ValidationState} that needed to be shown when bounded view is empty and you need to show to user reminder,
      * that he or she needs to fill this view.
+     *
      * @return {@link ValidationState} that should be shown for an empty field.
      */
     @NonNull
@@ -90,10 +95,11 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
     }
 
     /**
-     * Validates {@link TWrapperModel} and returns {@link Observable} with {@link HalfNullablePair} of final state and resulting model.
+     * Validates {@link TWrapperModel} and returns {@link Single} with {@link HalfNullablePair} of final state and resulting model.
+     *
      * @param wrapperModel - not null value that should be validated.
      * @return pair with final {@link ValidationState} that is always not null and a model that we get after converting the {@link TWrapperModel}.
-     *         Model can be null if validation fails.
+     * Model can be null if validation fails.
      */
     @NonNull
     public abstract Observable<HalfNullablePair<ValidationState, TModel>> fullValidateAndGetModel(@NonNull final TWrapperModel wrapperModel);

@@ -37,6 +37,7 @@ public class BooleanValidationController extends ValidationController<Boolean, B
 
     /**
      * This method validates bounded view.
+     *
      * @param activatedObservable emits true when we need to show error on empty fields. Eg when user clicks on Done button but he missed some
      *                            necessary fields to fill.
      * @return observable without any concrete type. Simply subscribe to this method to make it works.
@@ -45,7 +46,7 @@ public class BooleanValidationController extends ValidationController<Boolean, B
     public Observable<?> validation(@NonNull final Observable<Boolean> activatedObservable) {
         return Observable.combineLatest(activatedObservable, getValidator().getWrapperModel().observe(),
                 (activated, flag) -> {
-                    final boolean selected = flag == null ? false : flag;
+                    final boolean selected = flag.get() == null ? false : flag.get();
                     if (activated && !selected) {
                         return ValidationState.ERROR_NO_DESCRIPTION;
                     } else if (!activated && !selected) {
