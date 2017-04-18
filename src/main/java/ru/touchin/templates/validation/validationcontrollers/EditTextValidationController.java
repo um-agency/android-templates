@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import java.io.Serializable;
 
 import io.reactivex.Observable;
+import ru.touchin.roboswag.core.utils.Optional;
 import ru.touchin.roboswag.core.utils.pairs.NonNullPair;
 import ru.touchin.templates.validation.ValidationState;
 import ru.touchin.templates.validation.validators.EditTextValidator;
@@ -77,9 +78,10 @@ public class EditTextValidationController<TModel extends Serializable>
     @Nullable
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     private NonNullPair<Boolean, Observable<ValidationState>> getValidationPair(final boolean activated,
-                                                                                @Nullable final String text,
+                                                                                @NonNull Optional<String> optionalText,
                                                                                 @Nullable final Boolean focusIn,
                                                                                 final boolean showError) {
+        final String text = optionalText.get();
         if (focusIn == null && TextUtils.isEmpty(text) && !activated && !showError) {
             return null;
         }
@@ -98,8 +100,7 @@ public class EditTextValidationController<TModel extends Serializable>
     /**
      * If we don't want to show error when focus is lost.
      *
-     * @param showErrorOnFocusOut  show an error or don't show an error. 
-     *
+     * @param showErrorOnFocusOut show an error or don't show an error.
      */
     public void setShowErrorOnFocusOut(final boolean showErrorOnFocusOut) {
         this.showErrorOnFocusOut = showErrorOnFocusOut;
