@@ -133,6 +133,16 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
     }
 
     @NonNull
+    protected List<CalendarItem> getCalendarItems() {
+        return calendarItems;
+    }
+
+    @NonNull
+    protected String getMonthsNameByHeaderCalendarItem(@NonNull final CalendarHeaderItem item) {
+        return monthsNames != null ? monthsNames[item.getMonth()] : String.valueOf(item.getMonth());
+    }
+
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         switch (viewType) {
