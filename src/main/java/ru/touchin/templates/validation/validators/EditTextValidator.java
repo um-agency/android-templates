@@ -25,7 +25,6 @@ import android.support.annotation.Nullable;
 import java.io.Serializable;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import ru.touchin.roboswag.core.observables.Changeable;
 import ru.touchin.roboswag.core.observables.NonNullChangeable;
@@ -143,7 +142,7 @@ public abstract class EditTextValidator<TModel extends Serializable> extends Val
      *
      * @param text - input text.
      * @return pair with final {@link ValidationState} that is always not null and a model that we get after converting the text.
-     * Model can be null if validation fails on primary or final checks.
+     *      Model can be null if validation fails on primary or final checks.
      */
     @NonNull
     @Override

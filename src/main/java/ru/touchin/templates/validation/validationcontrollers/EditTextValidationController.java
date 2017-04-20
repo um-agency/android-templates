@@ -76,18 +76,17 @@ public class EditTextValidationController<TModel extends Serializable>
     }
 
     @Nullable
-    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     private NonNullPair<Boolean, Observable<ValidationState>> getValidationPair(final boolean activated,
-                                                                                @NonNull Optional<String> optionalText,
+                                                                                @NonNull final Optional<String> optionalText,
                                                                                 @Nullable final Boolean focusIn,
                                                                                 final boolean showError) {
         final String text = optionalText.get();
         if (focusIn == null && TextUtils.isEmpty(text) && !activated && !showError) {
             return null;
         }
-        final boolean focus = focusIn == null ? false : focusIn;
+        final boolean focus = focusIn != null && focusIn;
         if (TextUtils.isEmpty(text)) {
-            return new NonNullPair<>(focus, (activated || showError)
+            return new NonNullPair<>(focus, activated || showError
                     ? getValidator().getValidationStateWhenEmpty().observe()
                     : Observable.just(ValidationState.INITIAL));
         }

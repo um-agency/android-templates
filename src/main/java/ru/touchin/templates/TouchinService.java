@@ -248,7 +248,8 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
     public Disposable untilDestroy(@NonNull final Completable completable,
                                    @NonNull final Action onCompletedAction,
                                    @NonNull final Consumer<Throwable> onErrorAction) {
-        return until(completable.toObservable(), isCreatedSubject.map(created -> !created), Functions.emptyConsumer(), onErrorAction, onCompletedAction);
+        return until(completable.toObservable(), isCreatedSubject.map(created -> !created),
+                Functions.emptyConsumer(), onErrorAction, onCompletedAction);
     }
 
     @NonNull
