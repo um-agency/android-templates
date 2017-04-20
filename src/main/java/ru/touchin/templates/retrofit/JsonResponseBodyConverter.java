@@ -57,6 +57,8 @@ public abstract class JsonResponseBodyConverter<T> implements Converter<Response
                 Lc.assertion(exception);
             }
             throw exception;
+        } finally {
+            value.close();
         }
 
         if (result instanceof ApiModel) {

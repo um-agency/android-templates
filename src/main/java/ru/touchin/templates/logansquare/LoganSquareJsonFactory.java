@@ -21,13 +21,17 @@ package ru.touchin.templates.logansquare;
 
 import android.support.annotation.NonNull;
 
+import com.bluelinelabs.logansquare.ConverterUtils;
 import com.bluelinelabs.logansquare.LoganSquare;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -73,7 +77,23 @@ public class LoganSquareJsonFactory extends Converter.Factory {
         @NonNull
         @Override
         protected T parseResponse(@NonNull final ResponseBody value) throws IOException {
-            return (T) LoganSquare.parse(value.byteStream(), (Class) type);
+            if (type instanceof ParameterizedType) {
+                final ParameterizedType parameterizedType = (ParameterizedType) type;
+                final Type[] typeArguments = parameterizedType.getActualTypeArguments();
+                final Type firstType = typeArguments[0];
+
+                final Type rawType = parameterizedType.getRawType();
+                if (rawType == Map.class) {
+                    return (T) LoganSquare.parseMap(value.byteStream(), (Class<?>) typeArguments[1]);
+                } else if (rawType == List.class) {
+                    return (T) LoganSquare.parseList(value.byteStream(), (Class<?>) firstType);
+                } else {
+                    // Generics
+                    return (T) LoganSquare.parse(value.byteStream(), ConverterUtils.parameterizedTypeOf(type));
+                }
+            } else {
+                return (T) LoganSquare.parse(value.byteStream(), (Class) type);
+            }
         }
 
     }
