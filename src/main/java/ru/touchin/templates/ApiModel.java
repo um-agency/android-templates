@@ -60,6 +60,10 @@ public abstract class ApiModel implements Serializable {
         while (iterator.hasNext()) {
             final Object item = iterator.next();
             if (!(item instanceof ApiModel)) {
+                if (item != null) {
+                    // let's just think that all of items are not ApiModels
+                    break;
+                }
                 continue;
             }
 
