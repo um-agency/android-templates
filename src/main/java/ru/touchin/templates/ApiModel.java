@@ -50,7 +50,7 @@ public abstract class ApiModel implements Serializable {
      * @param collectionValidationRule Rule explaining what to do if invalid items found;
      * @throws ValidationException Exception of validation.
      */
-    @SuppressWarnings("PMD.PreserveStackTrace")
+    @SuppressWarnings({"PMD.PreserveStackTrace", "PMD.CyclomaticComplexity"})
     // PreserveStackTrace: it's ok - we are logging it on Lc.e()
     protected static void validateCollection(@NonNull final Collection collection, @NonNull final CollectionValidationRule collectionValidationRule)
             throws ValidationException {
