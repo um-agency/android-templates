@@ -81,15 +81,13 @@ public abstract class TouchinApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (RxAndroidPlugins.getInstance().getSchedulersHook() == null) {
-            RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
-                @NonNull
-                @Override
-                public Scheduler getMainThreadScheduler() {
-                    return new MainThreadScheduler();
-                }
-            });
-        }
+        RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
+            @NonNull
+            @Override
+            public Scheduler getMainThreadScheduler() {
+                return new MainThreadScheduler();
+            }
+        });
         JodaTimeAndroid.init(this);
         if (isDebug()) {
             enableStrictMode();
