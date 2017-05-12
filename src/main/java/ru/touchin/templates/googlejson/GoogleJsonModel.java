@@ -78,8 +78,11 @@ public abstract class GoogleJsonModel extends ApiModel {
      * @throws ValidationException Exception of validation.
      */
     protected static void validateNotNull(@Nullable final Object object) throws ValidationException {
-        if (isNullOrMissed(object)) {
-            throw new ValidationException("Not nullable object is null or missed at " + Lc.getCodePoint(null, 1));
+        if (isNull(object)) {
+            throw new ValidationException("Not nullable object is null at " + Lc.getCodePoint(null, 1));
+        }
+        if (isMissed(object)) {
+            throw new ValidationException("Not nullable object is missed at " + Lc.getCodePoint(null, 1));
         }
     }
 
