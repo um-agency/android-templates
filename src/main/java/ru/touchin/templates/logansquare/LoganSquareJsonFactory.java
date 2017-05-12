@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 
 import com.bluelinelabs.logansquare.ConverterUtils;
 import com.bluelinelabs.logansquare.LoganSquare;
-import com.google.api.client.json.jackson2.JacksonFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,7 +41,7 @@ import ru.touchin.templates.retrofit.JsonResponseBodyConverter;
 
 /**
  * Created by Gavriil Sitnikov on 2/06/2016.
- * LoganSquareConverter class to use with {@link Retrofit} to parse and generate models based on Google Jackson library {@link JacksonFactory}.
+ * LoganSquareConverter class to use with {@link Retrofit} to parse and generate models based on Logan Square library.
  */
 public class LoganSquareJsonFactory extends Converter.Factory {
 
