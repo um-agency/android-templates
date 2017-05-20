@@ -247,7 +247,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
     }
 
     //TODO fix suppress
-    @SuppressWarnings("PMD.CyclomaticComplexity")
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     private void bindDay(@NonNull final TDayViewHolder holder, final int position, @NonNull final CalendarItem calendarItem) {
         final String currentDay = String.valueOf(((CalendarDayItem) calendarItem).getPositionOfFirstDay()
                 + position - calendarItem.getStartRange());
