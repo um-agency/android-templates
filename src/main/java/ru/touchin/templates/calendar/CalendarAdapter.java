@@ -51,8 +51,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
     public static final int MONTHS_IN_YEAR = 12;
     public static final long ONE_DAY_LENGTH = TimeUnit.DAYS.toMillis(1);
 
-    @NonNull
-    private final List<CalendarItem> calendarItems;
+    private List<CalendarItem> calendarItems;
     @Nullable
     private Integer startSelectionPosition;
     @Nullable
@@ -72,6 +71,10 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
         if (monthsNames != null && monthsNames.length == MONTHS_IN_YEAR) {
             this.monthsNames = monthsNames;
         }
+        updateCalendarItems(startDate, endDate);
+    }
+
+    public final void updateCalendarItems(@NonNull final DateTime startDate, @NonNull final DateTime endDate) {
         calendarItems = CalendarUtils.fillRanges(startDate, endDate);
         if (calendarItems.isEmpty()) {
             throw new ShouldNotHappenException("There is no items in calendar with startDate: " + DateTimeFormat.fullDate().print(startDate)
