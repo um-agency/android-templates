@@ -142,8 +142,7 @@ public abstract class SocketConnection {
                                             socket.off(socketEvent.getName());
                                             messagesObservableCache.remove(socketEvent);
                                         }))
-                                .replay(1)
-                                .refCount();
+                                .publish();
                         messagesObservableCache.put(socketEvent, result);
                     }
                     return result;
