@@ -203,23 +203,9 @@ public abstract class HttpRequest<T> {
     @NonNull
     public Observable<T> execute() {
         return Observable
-                .<RequestController>create(subscriber -> {
-                    try {
-                        subscriber.onNext(new RequestController());
-                    } catch (final IOException exception) {
-                        subscriber.onError(exception);
-                    }
-                    subscriber.onCompleted();
-                })
+                .fromCallable(RequestController::new)
                 .switchMap(requestController -> Observable
-                        .<T>create(requestSubscriber -> {
-                            try {
-                                requestSubscriber.onNext(executeSyncInternal(requestController));
-                            } catch (final IOException exception) {
-                                requestSubscriber.onError(exception);
-                            }
-                            requestSubscriber.onCompleted();
-                        })
+                        .fromCallable(() -> executeSyncInternal(requestController))
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
                         .doOnUnsubscribe(requestController.call::cancel));

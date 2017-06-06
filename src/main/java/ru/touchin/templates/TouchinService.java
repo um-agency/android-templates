@@ -32,6 +32,7 @@ import ru.touchin.roboswag.core.log.Lc;
 import ru.touchin.roboswag.core.utils.ServiceBinder;
 import ru.touchin.roboswag.core.utils.ShouldNotHappenException;
 import rx.Completable;
+import rx.CompletableSubscriber;
 import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
@@ -226,7 +227,7 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
      * Don't forget to process errors if completable can emit them.
      *
      * @param completable       {@link Completable} to subscribe until onDestroy;
-     * @param onCompletedAction Action which will raise on every {@link Completable.CompletableSubscriber#onCompleted()} item;
+     * @param onCompletedAction Action which will raise on every {@link CompletableSubscriber#onCompleted()} item;
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull
@@ -240,8 +241,8 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
      * Don't forget to process errors if completable can emit them.
      *
      * @param completable       {@link Single} to subscribe until onDestroy;
-     * @param onCompletedAction Action which will raise on {@link Completable.CompletableSubscriber#onCompleted()} item;
-     * @param onErrorAction     Action which will raise on every {@link Completable.CompletableSubscriber#onError(Throwable)} throwable;
+     * @param onCompletedAction Action which will raise on {@link CompletableSubscriber#onCompleted()} item;
+     * @param onErrorAction     Action which will raise on every {@link CompletableSubscriber#onError(Throwable)} throwable;
      * @return {@link Subscription} which is wrapping source completable to unsubscribe from it onDestroy.
      */
     @NonNull

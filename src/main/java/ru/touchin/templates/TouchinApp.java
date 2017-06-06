@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
+import ru.touchin.roboswag.components.adapters.ObservableCollectionAdapter;
 import ru.touchin.roboswag.components.navigation.fragments.ViewControllerFragment;
 import ru.touchin.roboswag.components.utils.UiUtils;
 import ru.touchin.roboswag.components.views.TypefacedEditText;
@@ -91,6 +92,7 @@ public abstract class TouchinApp extends Application {
         JodaTimeAndroid.init(this);
         if (isDebug()) {
             enableStrictMode();
+            ObservableCollectionAdapter.setInDebugMode();
             ViewControllerFragment.setInDebugMode();
             TypefacedEditText.setInDebugMode();
             TypefacedTextView.setInDebugMode();
