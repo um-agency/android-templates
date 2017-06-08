@@ -46,13 +46,13 @@ public class CalendarRecyclerView extends RecyclerView {
         this(context, attrs, 0);
     }
 
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
+    //ConstructorCallsOverridableMethod: it's OK
     public CalendarRecyclerView(@NonNull final Context context, @Nullable final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
         initialize();
     }
 
-    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
-    //ConstructorCallsOverridableMethod: it's OK
     private void initialize() {
         setupCacheForMonthsOnScreenCount(3);
         final StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(7, StaggeredGridLayoutManager.VERTICAL);
