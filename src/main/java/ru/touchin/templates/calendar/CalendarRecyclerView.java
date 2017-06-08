@@ -23,6 +23,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 
 import ru.touchin.roboswag.core.log.Lc;
@@ -47,9 +48,22 @@ public class CalendarRecyclerView extends RecyclerView {
 
     public CalendarRecyclerView(@NonNull final Context context, @Nullable final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
-        getRecycledViewPool().setMaxRecycledViews(CalendarAdapter.HEADER_ITEM_TYPE, HEADER_MAX_ELEMENTS_IN_A_ROW * 3);
-        getRecycledViewPool().setMaxRecycledViews(CalendarAdapter.EMPTY_ITEM_TYPE, EMPTY_MAX_ELEMENTS_IN_A_ROW * 3);
-        getRecycledViewPool().setMaxRecycledViews(CalendarAdapter.DAY_ITEM_TYPE, DAY_MAX_ELEMENTS_IN_A_ROW * 3);
+        setupCacheForMonthsOnScreenCount(3);
+        final StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(7, StaggeredGridLayoutManager.VERTICAL);
+        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        setItemAnimator(null);
+    }
+
+    /**
+     * Setups recycler cache for smooth scroll without lagging based on month that could be displayed on screen.
+     *
+     * @param maxMonthOnScreen Maximum months count on screen.
+     */
+    public void setupCacheForMonthsOnScreenCount(final int maxMonthOnScreen) {
+        getRecycledViewPool().setMaxRecycledViews(CalendarAdapter.HEADER_ITEM_TYPE, HEADER_MAX_ELEMENTS_IN_A_ROW * (maxMonthOnScreen + 1));
+        getRecycledViewPool().setMaxRecycledViews(CalendarAdapter.EMPTY_ITEM_TYPE, EMPTY_MAX_ELEMENTS_IN_A_ROW * (maxMonthOnScreen * 2 + 1));
+        // we need such much views to prevent cache/gap animations of StaggeredGridLayoutManager
+        getRecycledViewPool().setMaxRecycledViews(CalendarAdapter.DAY_ITEM_TYPE, DAY_MAX_ELEMENTS_IN_A_ROW * (maxMonthOnScreen * 5 + 1));
         setItemViewCacheSize(0);
     }
 
