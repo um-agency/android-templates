@@ -46,6 +46,8 @@ public class CalendarRecyclerView extends RecyclerView {
         this(context, attrs, 0);
     }
 
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
+    //ConstructorCallsOverridableMethod: it's OK
     public CalendarRecyclerView(@NonNull final Context context, @Nullable final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
         setupCacheForMonthsOnScreenCount(3);
