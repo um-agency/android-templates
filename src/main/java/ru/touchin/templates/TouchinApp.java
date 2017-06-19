@@ -84,7 +84,12 @@ public abstract class TouchinApp extends Application {
         JodaTimeAndroid.init(this);
         if (isDebug()) {
             enableStrictMode();
-            ObservableCollectionAdapter.setInDebugMode();
+            try {
+                ObservableCollectionAdapter.setInDebugMode();
+            } catch (final NoClassDefFoundError error) {
+                Lc.w("RecyclerView initialization error! Did you forget to add debugCompile "
+                        + "'com.android.support:recyclerview-v7:+' to your build.gradle?");
+            }
             ViewControllerFragment.setInDebugMode();
             TypefacedEditText.setInDebugMode();
             TypefacedTextView.setInDebugMode();
