@@ -134,12 +134,14 @@ public final class DeviceUtils {
                 case TelephonyManager.NETWORK_TYPE_HSPAP:
                     return NetworkType.MOBILE_3G;
                 case TelephonyManager.NETWORK_TYPE_LTE:
+                case 19: // NETWORK_TYPE_LTE_CA is hide
                     return NetworkType.MOBILE_LTE;
+                case TelephonyManager.NETWORK_TYPE_UNKNOWN:
                 default:
-                    return NetworkType.NONE;
+                    return NetworkType.UNKNOWN;
             }
         }
-        return NetworkType.NONE;
+        return NetworkType.UNKNOWN;
     }
 
     /**
@@ -192,6 +194,10 @@ public final class DeviceUtils {
          * Wi-Fi network.
          */
         WI_FI("Wi-Fi"),
+        /**
+         * Unknown network type.
+         */
+        UNKNOWN("unknown"),
         /**
          * No network.
          */
