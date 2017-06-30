@@ -28,6 +28,8 @@ import android.support.annotation.NonNull;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.Emitter;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -250,6 +252,53 @@ public abstract class TouchinService<TLogic extends Logic> extends Service {
                                    @NonNull final Consumer<Throwable> onErrorAction) {
         return until(completable.toObservable(), isCreatedSubject.map(created -> !created),
                 Functions.emptyConsumer(), onErrorAction, onCompletedAction);
+    }
+
+    /**
+     * Method should be used to guarantee that maybe won't be subscribed after onDestroy.
+     * It is automatically subscribing to maybe.
+     * Don't forget to process errors if maybe can emit them.
+     *
+     * @param maybe {@link Maybe} to subscribe until onDestroy;
+     * @param <T>   Type of emitted by maybe items;
+     * @return {@link Disposable} which is wrapping source maybe to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    public <T> Disposable untilDestroy(@NonNull final Maybe<T> maybe) {
+        return untilDestroy(maybe, Functions.emptyConsumer(), getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
+    }
+
+    /**
+     * Method should be used to guarantee that maybe won't be subscribed after onDestroy.
+     * It is automatically subscribing to maybe and calls onSuccessAction on emitted item.
+     * Don't forget to process errors if maybe can emit them.
+     *
+     * @param maybe           {@link Maybe} to subscribe until onDestroy;
+     * @param onSuccessAction Action which will raise on {@link MaybeEmitter#onSuccess(Object)} item;
+     * @param <T>             Type of emitted by maybe items;
+     * @return {@link Disposable} which is wrapping source maybe to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    public <T> Disposable untilDestroy(@NonNull final Maybe<T> maybe, @NonNull final Consumer<T> onSuccessAction) {
+        return untilDestroy(maybe, onSuccessAction, getActionThrowableForAssertion(Lc.getCodePoint(this, 1)));
+    }
+
+    /**
+     * Method should be used to guarantee that maybe won't be subscribed after onDestroy.
+     * It is automatically subscribing to maybe and calls onSuccessAction and onErrorAction on maybe events.
+     * Don't forget to process errors if maybe can emit them.
+     *
+     * @param maybe           {@link Maybe} to subscribe until onDestroy;
+     * @param onSuccessAction Action which will raise on {@link MaybeEmitter#onSuccess(Object)} item;
+     * @param onErrorAction   Action which will raise on every {@link MaybeEmitter#onError(Throwable)} throwable;
+     * @param <T>             Type of emitted by maybe items;
+     * @return {@link Disposable} which is wrapping source maybe to unsubscribe from it onDestroy.
+     */
+    @NonNull
+    public <T> Disposable untilDestroy(@NonNull final Maybe<T> maybe,
+                                       @NonNull final Consumer<T> onSuccessAction,
+                                       @NonNull final Consumer<Throwable> onErrorAction) {
+        return until(maybe.toObservable(), isCreatedSubject.map(created -> !created), onSuccessAction, onErrorAction, Functions.EMPTY_ACTION);
     }
 
     @NonNull
