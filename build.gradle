@@ -12,7 +12,6 @@ android {
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 25
     }
 }
 
