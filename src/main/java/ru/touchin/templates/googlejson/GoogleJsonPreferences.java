@@ -29,7 +29,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.touchin.roboswag.components.utils.storables.PreferenceStore;
 import ru.touchin.roboswag.core.observables.storable.Converter;
@@ -78,6 +80,26 @@ public final class GoogleJsonPreferences {
                                                                                 @NonNull final SharedPreferences preferences,
                                                                                 @NonNull final List<T> defaultValue) {
         return new Storable.Builder<>(name, List.class, String.class, new PreferenceStore<>(preferences), new JsonListConverter<>(jsonListItemClass))
+                .setObserveStrategy(Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
+                .setDefaultValue(defaultValue)
+                .build();
+    }
+
+    @NonNull
+    public static <T> Storable<String, Set<T>, String> jsonSetStorable(@NonNull final String name,
+                                                                       @NonNull final Class<T> jsonItemClass,
+                                                                       @NonNull final SharedPreferences preferences) {
+        return new Storable.Builder<>(name, Set.class, String.class, new PreferenceStore<>(preferences), new JsonSetConverter<>(jsonItemClass))
+                .setObserveStrategy(Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
+                .build();
+    }
+
+    @NonNull
+    public static <T> NonNullStorable<String, Set<T>, String> jsonSetStorable(@NonNull final String name,
+                                                                              @NonNull final Class<T> jsonItemClass,
+                                                                              @NonNull final SharedPreferences preferences,
+                                                                              @NonNull final Set<T> defaultValue) {
+        return new Storable.Builder<>(name, Set.class, String.class, new PreferenceStore<>(preferences), new JsonSetConverter<>(jsonItemClass))
                 .setObserveStrategy(Storable.ObserveStrategy.CACHE_ACTUAL_VALUE)
                 .setDefaultValue(defaultValue)
                 .build();
@@ -139,6 +161,31 @@ public final class GoogleJsonPreferences {
             }
             try {
                 return new ArrayList<>(GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(storeValue).parseArray(ArrayList.class, itemClass));
+            } catch (final IOException exception) {
+                throw new ShouldNotHappenException(exception);
+            }
+        }
+
+    }
+
+    public static class JsonSetConverter<T> extends JsonConverter<Set<T>> {
+
+        @NonNull
+        private final Class<T> itemClass;
+
+        public JsonSetConverter(@NonNull final Class<T> itemClass) {
+            super();
+            this.itemClass = itemClass;
+        }
+
+        @Nullable
+        @Override
+        public Set<T> toObject(@NonNull final Type jsonObjectType, @NonNull final Type stringType, @Nullable final String storeValue) {
+            if (storeValue == null) {
+                return null;
+            }
+            try {
+                return new HashSet<>(GoogleJsonModel.DEFAULT_JSON_FACTORY.createJsonParser(storeValue).parseArray(HashSet.class, itemClass));
             } catch (final IOException exception) {
                 throw new ShouldNotHappenException(exception);
             }
