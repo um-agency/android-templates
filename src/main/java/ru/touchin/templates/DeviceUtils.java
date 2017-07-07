@@ -109,8 +109,13 @@ public final class DeviceUtils {
      */
     @NonNull
     public static NetworkType getNetworkType(@NonNull final Context context) {
-        final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo info = cm.getActiveNetworkInfo();
+        final ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return getNetworkType(connectivityManager);
+    }
+
+    @NonNull
+    private static NetworkType getNetworkType(@NonNull final ConnectivityManager connectivityManager) {
+        final NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         if (info == null || !info.isConnected()) {
             return NetworkType.NONE;
         }
@@ -157,7 +162,6 @@ public final class DeviceUtils {
         return getNetworkType(context) != NetworkType.NONE;
     }
 
-
     /**
      * Returns observable to observe is device connected to Wi-Fi network.
      *
@@ -175,6 +179,27 @@ public final class DeviceUtils {
                         context.registerReceiver(wifiStateReceiver, WifiStateReceiver.INTENT_FILTER);
                     })
                     .doOnUnsubscribe(() -> context.unregisterReceiver(wifiStateReceiver))
+                    .distinctUntilChanged();
+        }));
+    }
+
+    /**
+     * Returns observable to observe is device connected to the internet.
+     *
+     * @param context Context to register BroadcastReceiver to check connection to the internet;
+     * @return Observable of internet connection status.
+     */
+    @NonNull
+    public static Observable<Boolean> observeIsNetworkConnected(@NonNull final Context context) {
+        return Observable.switchOnNext(Observable.fromCallable(() -> {
+            final NetworkStateReceiver networkStateReceiver = new NetworkStateReceiver();
+            return Observable
+                    .<Boolean>create(subscriber -> {
+                        subscriber.onNext(isNetworkConnected(context));
+                        networkStateReceiver.setSubscriber(subscriber);
+                        context.registerReceiver(networkStateReceiver, NetworkStateReceiver.INTENT_FILTER);
+                    })
+                    .doOnUnsubscribe(() -> context.unregisterReceiver(networkStateReceiver))
                     .distinctUntilChanged();
         }));
     }
@@ -247,6 +272,29 @@ public final class DeviceUtils {
             }
         }
 
+    }
+
+    private static class NetworkStateReceiver extends BroadcastReceiver {
+
+        private static final IntentFilter INTENT_FILTER = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        @Nullable
+        private ConnectivityManager connectivityManager;
+
+        @Nullable
+        private Subscriber<? super Boolean> subscriber;
+
+        public void setSubscriber(@Nullable final Subscriber<? super Boolean> subscriber) {
+            this.subscriber = subscriber;
+        }
+
+        public void onReceive(@NonNull final Context context, @NonNull final Intent intent) {
+            if (connectivityManager == null) {
+                connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            }
+            if (subscriber != null) {
+                subscriber.onNext(isNetworkConnected(context));
+            }
+        }
     }
 
 }
