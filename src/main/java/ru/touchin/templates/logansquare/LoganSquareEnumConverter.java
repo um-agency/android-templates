@@ -62,7 +62,7 @@ public class LoganSquareEnumConverter<T extends Enum & LoganSquareEnum> extends 
         if (defaultValue != null) {
             return defaultValue;
         }
-        throw new ShouldNotHappenException();
+        throw new ShouldNotHappenException("Enum parsing exception for value: " + string);
     }
 
     @Nullable
