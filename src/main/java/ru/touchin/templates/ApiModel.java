@@ -52,7 +52,7 @@ public abstract class ApiModel implements Serializable {
      */
     @SuppressWarnings({"PMD.PreserveStackTrace", "PMD.CyclomaticComplexity"})
     // PreserveStackTrace: it's ok - we are logging it on Lc.e()
-    protected static void validateCollection(@NonNull final Collection collection, @NonNull final CollectionValidationRule collectionValidationRule)
+    public static void validateCollection(@NonNull final Collection collection, @NonNull final CollectionValidationRule collectionValidationRule)
             throws ValidationException {
         boolean haveValidItem = false;
         int position = 0;
@@ -117,7 +117,7 @@ public abstract class ApiModel implements Serializable {
         //do nothing
     }
 
-    protected enum CollectionValidationRule {
+    public enum CollectionValidationRule {
         EXCEPTION_IF_ANY_INVALID,
         EXCEPTION_IF_ALL_INVALID,
         REMOVE_INVALID_ITEMS,

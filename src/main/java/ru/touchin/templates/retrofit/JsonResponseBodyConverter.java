@@ -24,6 +24,8 @@ import android.support.annotation.NonNull;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketException;
+import java.util.Collection;
+import java.util.Map;
 
 import javax.net.ssl.SSLException;
 
@@ -69,8 +71,29 @@ public abstract class JsonResponseBodyConverter<T> implements Converter<Response
                 throw validationException;
             }
         }
+        if (result instanceof Collection) {
+            try {
+                ApiModel.validateCollection((Collection) result, getValidateCollectionRule());
+            } catch (final ApiModel.ValidationException validationException) {
+                Lc.assertion(validationException);
+                throw validationException;
+            }
+        }
+        if (result instanceof Map) {
+            try {
+                ApiModel.validateCollection(((Map) result).values(), getValidateCollectionRule());
+            } catch (final ApiModel.ValidationException validationException) {
+                Lc.assertion(validationException);
+                throw validationException;
+            }
+        }
 
         return result;
+    }
+
+    @NonNull
+    protected ApiModel.CollectionValidationRule getValidateCollectionRule() {
+        return ApiModel.CollectionValidationRule.EXCEPTION_IF_ANY_INVALID;
     }
 
     /**
