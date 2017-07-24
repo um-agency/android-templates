@@ -99,7 +99,7 @@ public abstract class Validator<TWrapperModel extends Serializable, TModel exten
      *
      * @param wrapperModel - not null value that should be validated.
      * @return pair with final {@link ValidationState} that is always not null and a model that we get after converting the {@link TWrapperModel}.
-     *      Model can be null if validation fails.
+     * Model can be null if validation fails.
      */
     @NonNull
     public abstract Observable<HalfNullablePair<ValidationState, TModel>> fullValidateAndGetModel(@NonNull final TWrapperModel wrapperModel);

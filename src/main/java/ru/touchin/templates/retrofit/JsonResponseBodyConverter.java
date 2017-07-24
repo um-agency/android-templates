@@ -70,7 +70,7 @@ public abstract class JsonResponseBodyConverter<T> implements Converter<Response
             validateCollection((Collection) result);
         }
         if (result instanceof Map) {
-            validateCollection(((Map)result).values());
+            validateCollection(((Map) result).values());
         }
 
         return result;
