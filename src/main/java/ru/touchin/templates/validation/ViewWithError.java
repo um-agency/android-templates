@@ -38,6 +38,7 @@ public interface ViewWithError {
      * Shows error
      * Pass here error state.
      * It is not correct to pass here {@link ValidationState#VALID} or {@link ValidationState#INITIAL}
+     *
      * @param validationState error state. Can be other than {@link ValidationState} if you have successor of base {@link ValidationState}.
      */
     void showError(@NonNull final ValidationState validationState);
