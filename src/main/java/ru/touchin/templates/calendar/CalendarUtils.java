@@ -59,7 +59,7 @@ public final class CalendarUtils {
      * @param calendarItems List of {@link CalendarItem} where need to find specific element;
      * @param position      Position of adapter;
      * @return Position of Header that respond to requested position.
-     * Returns null if Header or related CalendarItem was not found for specified position.
+     *     Returns null if Header or related CalendarItem was not found for specified position.
      */
     @Nullable
     public static Integer findPositionOfSelectedMonth(@NonNull final List<CalendarItem> calendarItems, final long position) {
@@ -76,7 +76,7 @@ public final class CalendarUtils {
      * @param calendarItems List of {@link CalendarItem} where need to find specific element;
      * @param date          Requested date in milliseconds.
      * @return Position of Calendar cell that that has specific date.
-     * Returns null if CalendarItem was not found for specified position.
+     *     Returns null if CalendarItem was not found for specified position.
      */
     @Nullable
     public static Integer findPositionByDate(@NonNull final List<CalendarItem> calendarItems, final long date) {

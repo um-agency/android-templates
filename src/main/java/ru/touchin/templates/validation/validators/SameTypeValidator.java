@@ -36,7 +36,7 @@ public class SameTypeValidator<TModel extends Serializable> extends Validator<TM
      *
      * @param wrapperModel - not null value that should be validated.
      * @return pair with final {@link ValidationState} that is always not null and a model that we get after converting the {@link TModel}.
-     * Model can be null if validation fails.
+     *     Model can be null if validation fails.
      */
     @NonNull
     @Override
