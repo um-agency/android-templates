@@ -52,7 +52,7 @@ public class LoganSquareEnumConverter<T extends Enum & LoganSquareEnum> extends 
     @Override
     public T getFromString(@Nullable final String string) {
         if (string == null) {
-            return null;
+            return defaultValue;
         }
         for (final T value : enumValues) {
             if (value.getValueName().equals(string)) {
