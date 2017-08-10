@@ -31,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import ru.touchin.roboswag.core.log.Lc;
-import ru.touchin.roboswag.core.observables.collections.Change;
 import ru.touchin.roboswag.core.observables.collections.ObservableCollection;
 import ru.touchin.roboswag.core.observables.collections.ObservableList;
 import rx.Observable;
@@ -78,11 +77,7 @@ public abstract class Chat<TOutgoingMessage> {
                     return Observable.from(reversedMessages)
                             .concatWith(sendingMessages.observeChanges().concatMap(changes -> {
                                 final Collection<TOutgoingMessage> insertedMessages = new ArrayList<>();
-                                for (final Change<TOutgoingMessage> change : changes.getChanges()) {
-                                    if (change.getType() == Change.Type.INSERTED) {
-                                        insertedMessages.addAll(change.getChangedItems());
-                                    }
-                                }
+                                insertedMessages.addAll(changes.getInsertedItems());
                                 return insertedMessages.isEmpty() ? Observable.empty() : Observable.from(insertedMessages);
                             }))
                             //observe on some scheduler?
