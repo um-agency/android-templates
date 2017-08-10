@@ -19,9 +19,7 @@
 
 package ru.touchin.templates;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -29,7 +27,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
@@ -37,8 +34,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 import ru.touchin.roboswag.core.log.Lc;
+import ru.touchin.roboswag.core.observables.RxAndroidUtils;
 import rx.Observable;
-import rx.Subscriber;
 
 /**
  * Utility class that is providing common methods related to android device.
@@ -137,12 +134,14 @@ public final class DeviceUtils {
                 case TelephonyManager.NETWORK_TYPE_HSPAP:
                     return NetworkType.MOBILE_3G;
                 case TelephonyManager.NETWORK_TYPE_LTE:
+                case 19: // NETWORK_TYPE_LTE_CA is hide
                     return NetworkType.MOBILE_LTE;
+                case TelephonyManager.NETWORK_TYPE_UNKNOWN:
                 default:
-                    return NetworkType.NONE;
+                    return NetworkType.UNKNOWN;
             }
         }
-        return NetworkType.NONE;
+        return NetworkType.UNKNOWN;
     }
 
     /**
@@ -164,17 +163,12 @@ public final class DeviceUtils {
      */
     @NonNull
     public static Observable<Boolean> observeIsConnectedToWifi(@NonNull final Context context) {
-        return Observable.switchOnNext(Observable.fromCallable(() -> {
-            final WifiStateReceiver wifiStateReceiver = new WifiStateReceiver();
-            return Observable
-                    .<Boolean>create(subscriber -> {
-                        subscriber.onNext(DeviceUtils.getNetworkType(context) == DeviceUtils.NetworkType.WI_FI);
-                        wifiStateReceiver.setSubscriber(subscriber);
-                        context.registerReceiver(wifiStateReceiver, WifiStateReceiver.INTENT_FILTER);
-                    })
-                    .doOnUnsubscribe(() -> context.unregisterReceiver(wifiStateReceiver))
-                    .distinctUntilChanged();
-        }));
+        return RxAndroidUtils.observeBroadcastEvent(context, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION))
+                .map(intent -> {
+                    final NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                    return networkInfo != null && networkInfo.isConnected();
+                })
+                .distinctUntilChanged();
     }
 
     private DeviceUtils() {
@@ -201,6 +195,10 @@ public final class DeviceUtils {
          */
         WI_FI("Wi-Fi"),
         /**
+         * Unknown network type.
+         */
+        UNKNOWN("unknown"),
+        /**
          * No network.
          */
         NONE("none");
@@ -218,27 +216,6 @@ public final class DeviceUtils {
         @NonNull
         public String getName() {
             return name;
-        }
-
-    }
-
-    private static class WifiStateReceiver extends BroadcastReceiver {
-
-        private static final IntentFilter INTENT_FILTER = new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-
-        @Nullable
-        private Subscriber<? super Boolean> subscriber;
-
-        public void setSubscriber(@Nullable final Subscriber<? super Boolean> subscriber) {
-            this.subscriber = subscriber;
-        }
-
-        @Override
-        public void onReceive(@NonNull final Context context, @NonNull final Intent intent) {
-            final NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-            if (subscriber != null) {
-                subscriber.onNext(networkInfo != null && networkInfo.isConnected());
-            }
         }
 
     }

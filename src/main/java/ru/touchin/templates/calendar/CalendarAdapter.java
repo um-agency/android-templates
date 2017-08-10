@@ -51,8 +51,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
     public static final int MONTHS_IN_YEAR = 12;
     public static final long ONE_DAY_LENGTH = TimeUnit.DAYS.toMillis(1);
 
-    @NonNull
-    private final List<CalendarItem> calendarItems;
+    private List<CalendarItem> calendarItems;
     @Nullable
     private Integer startSelectionPosition;
     @Nullable
@@ -72,6 +71,10 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
         if (monthsNames != null && monthsNames.length == MONTHS_IN_YEAR) {
             this.monthsNames = monthsNames;
         }
+        updateCalendarItems(startDate, endDate);
+    }
+
+    public final void updateCalendarItems(@NonNull final DateTime startDate, @NonNull final DateTime endDate) {
         calendarItems = CalendarUtils.fillRanges(startDate, endDate);
         if (calendarItems.isEmpty()) {
             throw new ShouldNotHappenException("There is no items in calendar with startDate: " + DateTimeFormat.fullDate().print(startDate)
@@ -86,12 +89,12 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
      * @param endSelectionDate   Last date that should be selected (inclusive).
      */
     public void setSelectedRange(@Nullable final DateTime startSelectionDate, @Nullable final DateTime endSelectionDate) {
-        if (startSelectionDate != null) {
-            startSelectionPosition = CalendarUtils.findPositionByDate(calendarItems, startSelectionDate.withTimeAtStartOfDay().getMillis());
-        }
-        if (endSelectionDate != null) {
-            endSelectionPosition = CalendarUtils.findPositionByDate(calendarItems, endSelectionDate.withTimeAtStartOfDay().getMillis());
-        }
+        startSelectionPosition = startSelectionDate != null
+                ? CalendarUtils.findPositionByDate(calendarItems, startSelectionDate.withTimeAtStartOfDay().getMillis())
+                : null;
+        endSelectionPosition = endSelectionDate != null
+                ? CalendarUtils.findPositionByDate(calendarItems, endSelectionDate.withTimeAtStartOfDay().getMillis())
+                : null;
 
         notifySelectedDaysChanged();
     }
@@ -130,6 +133,16 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
             return;
         }
         notifyItemRangeChanged(startSelectionPosition, endSelectionPosition - startSelectionPosition);
+    }
+
+    @NonNull
+    protected List<CalendarItem> getCalendarItems() {
+        return calendarItems;
+    }
+
+    @NonNull
+    protected String getMonthsNameByHeaderCalendarItem(@NonNull final CalendarHeaderItem item) {
+        return monthsNames != null ? monthsNames[item.getMonth()] : String.valueOf(item.getMonth());
     }
 
     @NonNull
@@ -237,7 +250,7 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
     }
 
     //TODO fix suppress
-    @SuppressWarnings("PMD.CyclomaticComplexity")
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     private void bindDay(@NonNull final TDayViewHolder holder, final int position, @NonNull final CalendarItem calendarItem) {
         final String currentDay = String.valueOf(((CalendarDayItem) calendarItem).getPositionOfFirstDay()
                 + position - calendarItem.getStartRange());
@@ -245,11 +258,16 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
                 + (position - calendarItem.getStartRange()) * ONE_DAY_LENGTH);
         final ComparingToToday dateState = ((CalendarDayItem) calendarItem).getComparingToToday();
         if (startSelectionPosition != null && position == startSelectionPosition) {
-            if (endSelectionPosition == null || endSelectionPosition.equals(startSelectionPosition)) {
+            if (endSelectionPosition == null || endSelectionPosition.equals(startSelectionPosition)
+                    || startSelectionPosition > endSelectionPosition) {
                 bindDayItem(holder, currentDay, currentDate, SelectionMode.SELECTED_ONE_ONLY, dateState);
                 return;
             }
             bindDayItem(holder, currentDay, currentDate, SelectionMode.SELECTED_FIRST, dateState);
+            return;
+        }
+        if (startSelectionPosition != null && endSelectionPosition != null && startSelectionPosition > endSelectionPosition) {
+            bindDayItem(holder, currentDay, currentDate, SelectionMode.NOT_SELECTED, dateState);
             return;
         }
         if (endSelectionPosition != null && position == endSelectionPosition) {
@@ -283,6 +301,10 @@ public abstract class CalendarAdapter<TDayViewHolder extends RecyclerView.ViewHo
     @Override
     public int getItemCount() {
         return calendarItems.isEmpty() ? 0 : calendarItems.get(calendarItems.size() - 1).getEndRange();
+    }
+
+    protected boolean isEndPositionExist() {
+        return endSelectionPosition != null;
     }
 
     /**

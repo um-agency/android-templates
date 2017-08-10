@@ -35,24 +35,34 @@ public class LoganSquareEnumConverter<T extends Enum & LoganSquareEnum> extends 
 
     @NonNull
     private final T[] enumValues;
+    @Nullable
+    private final T defaultValue;
 
     public LoganSquareEnumConverter(@NonNull final T[] enumValues) {
+        this(enumValues, null);
+    }
+
+    public LoganSquareEnumConverter(@NonNull final T[] enumValues, @Nullable final T defaultValue) {
         super();
         this.enumValues = enumValues;
+        this.defaultValue = defaultValue;
     }
 
     @Nullable
     @Override
     public T getFromString(@Nullable final String string) {
         if (string == null) {
-            return null;
+            return defaultValue;
         }
         for (final T value : enumValues) {
             if (value.getValueName().equals(string)) {
                 return value;
             }
         }
-        throw new ShouldNotHappenException();
+        if (defaultValue != null) {
+            return defaultValue;
+        }
+        throw new ShouldNotHappenException("Enum parsing exception for value: " + string);
     }
 
     @Nullable
