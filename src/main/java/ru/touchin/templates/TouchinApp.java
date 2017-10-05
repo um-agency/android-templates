@@ -71,19 +71,6 @@ public abstract class TouchinApp extends Application {
      */
     protected abstract boolean isDebug();
 
-    /**
-     * @return True if application configured with MultiDex.
-     */
-    protected abstract boolean enableMultiDex();
-
-    @Override
-    protected void attachBaseContext(@NonNull final Context base) {
-        super.attachBaseContext(base);
-        if (enableMultiDex()) {
-            android.support.multidex.MultiDex.install(base);
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
