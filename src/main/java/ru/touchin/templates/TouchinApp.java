@@ -20,7 +20,6 @@
 package ru.touchin.templates;
 
 import android.app.Application;
-import android.content.Context;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
