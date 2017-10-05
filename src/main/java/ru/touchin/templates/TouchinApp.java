@@ -25,7 +25,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -72,10 +71,17 @@ public abstract class TouchinApp extends Application {
      */
     protected abstract boolean isDebug();
 
+    /**
+     * @return True if application configured with MultiDex.
+     */
+    protected abstract boolean enableMultiDex();
+
     @Override
     protected void attachBaseContext(@NonNull final Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(base);
+        if (enableMultiDex()) {
+            android.support.multidex.MultiDex.install(base);
+        }
     }
 
     @Override
