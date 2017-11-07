@@ -174,9 +174,9 @@ public final class DeviceUtils {
             final WifiStateReceiver wifiStateReceiver = new WifiStateReceiver();
             return Observable
                     .<Boolean>create(subscriber -> {
+                        context.registerReceiver(wifiStateReceiver, WifiStateReceiver.INTENT_FILTER);
                         subscriber.onNext(DeviceUtils.getNetworkType(context) == DeviceUtils.NetworkType.WI_FI);
                         wifiStateReceiver.setSubscriber(subscriber);
-                        context.registerReceiver(wifiStateReceiver, WifiStateReceiver.INTENT_FILTER);
                     })
                     .doOnUnsubscribe(() -> context.unregisterReceiver(wifiStateReceiver))
                     .distinctUntilChanged();
@@ -195,9 +195,9 @@ public final class DeviceUtils {
             final NetworkStateReceiver networkStateReceiver = new NetworkStateReceiver();
             return Observable
                     .<Boolean>create(subscriber -> {
+                        context.registerReceiver(networkStateReceiver, NetworkStateReceiver.INTENT_FILTER);
                         subscriber.onNext(isNetworkConnected(context));
                         networkStateReceiver.setSubscriber(subscriber);
-                        context.registerReceiver(networkStateReceiver, NetworkStateReceiver.INTENT_FILTER);
                     })
                     .doOnUnsubscribe(() -> context.unregisterReceiver(networkStateReceiver))
                     .distinctUntilChanged();
