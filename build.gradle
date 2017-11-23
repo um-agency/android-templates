@@ -1,9 +1,8 @@
 apply plugin: 'com.android.library'
-apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -20,32 +19,30 @@ repositories {
 }
 
 dependencies {
-    compile project(path: ':libraries:components')
+    api project(path: ':libraries:components')
+    api 'net.danlew:android.joda:2.9.9'
 
-    compile 'net.danlew:android.joda:2.9.9'
-    compile 'io.reactivex:rxandroid:1.2.1'
-
-    provided 'com.android.support:appcompat-v7:25.4.0'
-    provided 'com.android.support:recyclerview-v7:25.4.0'
-
-    provided 'com.squareup.retrofit2:retrofit:2.3.0'
-    provided('com.google.http-client:google-http-client-jackson2:1.23.0') {
-        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
-    }
-
-    provided 'com.facebook.fresco:fresco:1.5.0'
-    provided 'com.bluelinelabs:logansquare:1.3.7'
-
-    provided 'com.scottyab:aes-crypto:0.0.4'
-
-    provided('io.socket:socket.io-client:1.0.0') {
+    implementation('io.socket:socket.io-client:1.0.0') {
         exclude group: 'org.json', module: 'json'
     }
 
-    provided('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
-        transitive = true;
+    compileOnly "com.android.support:appcompat-v7:$support"
+    compileOnly "com.android.support:recyclerview-v7:$support"
+
+    compileOnly 'com.squareup.retrofit2:retrofit:2.3.0'
+    compileOnly('com.google.http-client:google-http-client-jackson2:1.23.0') {
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
     }
 
-    provided 'com.facebook.stetho:stetho:1.5.0'
+    compileOnly 'com.facebook.fresco:fresco:1.5.0'
+    compileOnly 'com.bluelinelabs:logansquare:1.3.7'
+
+    compileOnly 'com.scottyab:aes-crypto:0.0.4'
+
+    compileOnly('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true
+    }
+
+    compileOnly 'com.facebook.stetho:stetho:1.5.0'
 
 }
