@@ -19,7 +19,7 @@
 
 package ru.touchin.templates.validation.validationcontrollers;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import ru.touchin.templates.validation.ValidationState;
 import ru.touchin.templates.validation.validators.SameTypeValidator;

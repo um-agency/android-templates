@@ -19,7 +19,7 @@
 
 package ru.touchin.templates.validation;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by Ilia Kurtov on 24/01/2017.

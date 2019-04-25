@@ -19,7 +19,7 @@
 
 package ru.touchin.templates.requests;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

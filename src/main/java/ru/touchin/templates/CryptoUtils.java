@@ -19,7 +19,7 @@
 
 package ru.touchin.templates;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 

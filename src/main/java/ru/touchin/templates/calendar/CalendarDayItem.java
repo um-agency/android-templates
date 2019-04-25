@@ -19,7 +19,7 @@
 
 package ru.touchin.templates.calendar;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by Ilia Kurtov on 17/03/2016.

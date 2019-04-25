@@ -19,7 +19,7 @@
 
 package ru.touchin.templates.googlejson;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;

@@ -19,7 +19,7 @@
 
 package ru.touchin.templates.logansquare;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.bluelinelabs.logansquare.LoganSquare;
 import com.google.api.client.json.jackson2.JacksonFactory;
