@@ -30,10 +30,10 @@ dependencies {
     compileOnly "com.android.support:recyclerview-v7:$support"
 
     compileOnly 'com.squareup.retrofit2:retrofit:2.3.0'
-    compileOnly('com.google.http-client:google-http-client-jackson2:1.23.0') {
-        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
-    }
-
+//    compileOnly('com.google.http-client:google-http-client-jackson2:1.23.0') {
+//        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+//    }
+    compileOnly project(path: ':libraries:google-http-client-jackson2')
     compileOnly "com.facebook.fresco:fresco:$fresco"
     compileOnly 'com.bluelinelabs:logansquare:1.3.7'
 
